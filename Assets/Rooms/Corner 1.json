@@ -1,0 +1,1 @@
+{"ID":0,"roomName":"Corner 1","subFolder":"Corner1/","images":["Background.png","Base.png","Decoration.png"],"layer":[0,1,2],"collision":[false,true,false],"EntrancePos":[{"x":0.36000001430511477,"y":-2.3499999046325685},{"x":5.0,"y":0.0}],"EntranceDir":["s","e"],"Entities":[],"textures":[{"instanceID":-165262},{"instanceID":-165264},{"instanceID":-165266}]}

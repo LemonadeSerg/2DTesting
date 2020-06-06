@@ -1,0 +1,19 @@
+{
+
+  "roomName": "Straight 2",
+  "subFolder": "Straight2/",
+  "images": [ "Background.png", "Base.png", "Decoration.png" ],
+  "layer": [ 0, 1, 2 ],
+  "collision": [ false, true, false ],
+  "EntrancePos": [
+    {
+      "x": 0.0,
+      "y": 5
+    },
+    {
+      "x": 0.0,
+      "y": -5
+    }
+  ],
+  "EntranceDir": [ "n", "s" ]
+}
