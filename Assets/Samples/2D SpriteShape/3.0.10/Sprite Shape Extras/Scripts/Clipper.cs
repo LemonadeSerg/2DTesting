@@ -48,9 +48,9 @@
 //use_lines: Enables open path clipping. Adds a very minor cost to performance.
 #define use_lines
 
-
 using System;
 using System.Collections.Generic;
+
 //using System.Text;          //for Int128.AsString() & StringBuilder
 //using System.IO;            //debugging with streamReader & StreamWriter
 //using System.Windows.Forms; //debugging to clipboard
@@ -60,7 +60,9 @@ namespace ExtrasClipperLib
 #if use_int32
     using cInt = Int32;
 #else
+
     using cInt = Int64;
+
 #endif
 
     using Path = List<IntPoint>;
@@ -86,7 +88,6 @@ namespace ExtrasClipperLib
             this.X = ip.X; this.Y = ip.Y;
         }
     };
-
 
     //------------------------------------------------------------------------------
     // PolyTree & PolyNode classes
@@ -202,7 +203,6 @@ namespace ExtrasClipperLib
         public bool IsOpen { get; set; }
     }
 
-
     //------------------------------------------------------------------------------
     // Int128 struct (enables safe math on signed 64bit integers)
     // eg Int128 val1((Int64)9223372036854775807); //ie 2^63 -1
@@ -240,14 +240,14 @@ namespace ExtrasClipperLib
             return hi < 0;
         }
 
-        public static bool operator==(Int128 val1, Int128 val2)
+        public static bool operator ==(Int128 val1, Int128 val2)
         {
             if ((object)val1 == (object)val2) return true;
             else if ((object)val1 == null || (object)val2 == null) return false;
             return (val1.hi == val2.hi && val1.lo == val2.lo);
         }
 
-        public static bool operator!=(Int128 val1, Int128 val2)
+        public static bool operator !=(Int128 val1, Int128 val2)
         {
             return !(val1 == val2);
         }
@@ -265,7 +265,7 @@ namespace ExtrasClipperLib
             return hi.GetHashCode() ^ lo.GetHashCode();
         }
 
-        public static bool operator>(Int128 val1, Int128 val2)
+        public static bool operator >(Int128 val1, Int128 val2)
         {
             if (val1.hi != val2.hi)
                 return val1.hi > val2.hi;
@@ -273,7 +273,7 @@ namespace ExtrasClipperLib
                 return val1.lo > val2.lo;
         }
 
-        public static bool operator<(Int128 val1, Int128 val2)
+        public static bool operator <(Int128 val1, Int128 val2)
         {
             if (val1.hi != val2.hi)
                 return val1.hi < val2.hi;
@@ -281,7 +281,7 @@ namespace ExtrasClipperLib
                 return val1.lo < val2.lo;
         }
 
-        public static Int128 operator+(Int128 lhs, Int128 rhs)
+        public static Int128 operator +(Int128 lhs, Int128 rhs)
         {
             lhs.hi += rhs.hi;
             lhs.lo += rhs.lo;
@@ -289,12 +289,12 @@ namespace ExtrasClipperLib
             return lhs;
         }
 
-        public static Int128 operator-(Int128 lhs, Int128 rhs)
+        public static Int128 operator -(Int128 lhs, Int128 rhs)
         {
             return lhs + -rhs;
         }
 
-        public static Int128 operator-(Int128 val)
+        public static Int128 operator -(Int128 val)
         {
             if (val.lo == 0)
                 return new Int128(-val.hi, 0);
@@ -377,6 +377,7 @@ namespace ExtrasClipperLib
         }
 
 #else
+
         public IntPoint(cInt X, cInt Y)
         {
             this.X = X; this.Y = Y;
@@ -394,14 +395,14 @@ namespace ExtrasClipperLib
 
 #endif
 
-        public static bool operator==(IntPoint a, IntPoint b)
+        public static bool operator ==(IntPoint a, IntPoint b)
         {
             return a.X == b.X && a.Y == b.Y;
         }
 
-        public static bool operator!=(IntPoint a, IntPoint b)
+        public static bool operator !=(IntPoint a, IntPoint b)
         {
-            return a.X != b.X  || a.Y != b.Y;
+            return a.X != b.X || a.Y != b.Y;
         }
 
         public override bool Equals(object obj)
@@ -443,6 +444,7 @@ namespace ExtrasClipperLib
     }
 
     public enum ClipType { ctIntersection, ctUnion, ctDifference, ctXor };
+
     public enum PolyType { ptSubject, ptClip };
 
     //By far the most widely used winding rules for polygon filling are
@@ -452,9 +454,11 @@ namespace ExtrasClipperLib
     public enum PolyFillType { pftEvenOdd, pftNonZero, pftPositive, pftNegative };
 
     public enum JoinType { jtSquare, jtRound, jtMiter };
+
     public enum EndType { etClosedPolygon, etClosedLine, etOpenButt, etOpenSquare, etOpenRound };
 
     internal enum EdgeSide { esLeft, esRight };
+
     internal enum Direction { dRightToLeft, dLeftToRight };
 
     internal class TEdge
@@ -552,7 +556,11 @@ namespace ExtrasClipperLib
         internal const int Skip = -2;
         internal const int Unassigned = -1;
         internal const double tolerance = 1.0E-20;
-        internal static bool near_zero(double val) {return (val > -tolerance) && (val < tolerance); }
+
+        internal static bool near_zero(double val)
+        {
+            return (val > -tolerance) && (val < tolerance);
+        }
 
 #if use_int32
         public const cInt loRange = 0x7FFF;
@@ -578,6 +586,7 @@ namespace ExtrasClipperLib
             get;
             set;
         }
+
         //------------------------------------------------------------------------------
 
         public void Swap(ref cInt val1, ref cInt val2)
@@ -722,7 +731,7 @@ namespace ExtrasClipperLib
 
         //------------------------------------------------------------------------------
 
-        void RangeTest(IntPoint Pt, ref bool useFullRange)
+        private void RangeTest(IntPoint Pt, ref bool useFullRange)
         {
             if (useFullRange)
             {
@@ -770,7 +779,7 @@ namespace ExtrasClipperLib
         private TEdge FindNextLocMin(TEdge E)
         {
             TEdge E2;
-            for (;;)
+            for (; ; )
             {
                 while (E.Bot != E.Prev.Bot || E.Curr == E.Top) E = E.Next;
                 if (E.Dx != horizontal && E.Prev.Dx != horizontal) break;
@@ -899,7 +908,6 @@ namespace ExtrasClipperLib
 
         //------------------------------------------------------------------------------
 
-
         public bool AddPath(Path pg, PolyType polyType, bool Closed)
         {
 #if use_lines
@@ -936,7 +944,7 @@ namespace ExtrasClipperLib
 
             //2. Remove duplicate vertices, and (when closed) collinear edges ...
             TEdge E = eStart, eLoopStop = eStart;
-            for (;;)
+            for (; ; )
             {
                 //nb: allows matching start and end points when not Closed ...
                 if (E.Curr == E.Next.Curr && (Closed || E.Next != eStart))
@@ -1002,7 +1010,7 @@ namespace ExtrasClipperLib
                 locMin.RightBound = E;
                 locMin.RightBound.Side = EdgeSide.esRight;
                 locMin.RightBound.WindDelta = 0;
-                for (;;)
+                for (; ; )
                 {
                     if (E.Bot.X != E.Prev.Top.X) ReverseHorizontal(E);
                     if (E.Next.OutIdx == Skip) break;
@@ -1022,7 +1030,7 @@ namespace ExtrasClipperLib
             //open paths have matching start and end points ...
             if (E.Prev.Bot == E.Prev.Top) E = E.Next;
 
-            for (;;)
+            for (; ; )
             {
                 E = FindNextLocMin(E);
                 if (E == EMin) break;
@@ -1091,7 +1099,7 @@ namespace ExtrasClipperLib
 
         //------------------------------------------------------------------------------
 
-        TEdge RemoveEdge(TEdge e)
+        private TEdge RemoveEdge(TEdge e)
         {
             //removes e from double_linked_list (but without removing from memory)
             e.Prev.Next = e.Next;
@@ -1127,7 +1135,7 @@ namespace ExtrasClipperLib
             else
             {
                 LocalMinima tmpLm = m_MinimaList;
-                while (tmpLm.Next != null  && (newLm.Y < tmpLm.Next.Y))
+                while (tmpLm.Next != null && (newLm.Y < tmpLm.Next.Y))
                     tmpLm = tmpLm.Next;
                 newLm.Next = tmpLm.Next;
                 tmpLm.Next = newLm;
@@ -1398,6 +1406,7 @@ namespace ExtrasClipperLib
     {
         //InitOptions that can be passed to the constructor ...
         public const int ioReverseSolution = 1;
+
         public const int ioStrictlySimple = 2;
         public const int ioPreserveCollinear = 4;
 
@@ -1405,7 +1414,7 @@ namespace ExtrasClipperLib
         private Maxima m_Maxima;
         private TEdge m_SortedEdges;
         private List<IntersectNode> m_IntersectList;
-        IComparer<IntersectNode> m_IntersectNodeComparer;
+        private IComparer<IntersectNode> m_IntersectNodeComparer;
         private bool m_ExecuteLocked;
         private PolyFillType m_ClipFillType;
         private PolyFillType m_SubjFillType;
@@ -1417,6 +1426,7 @@ namespace ExtrasClipperLib
             IntPoint bot2, IntPoint top2, ref IntPoint pt);
         public ZFillCallback ZFillFunction { get; set; }
 #endif
+
         public Clipper(int InitOptions = 0) : base() //constructor
         {
             m_Scanbeam = null;
@@ -1477,6 +1487,7 @@ namespace ExtrasClipperLib
             get;
             set;
         }
+
         //------------------------------------------------------------------------------
 
         public bool StrictlySimple
@@ -1484,6 +1495,7 @@ namespace ExtrasClipperLib
             get;
             set;
         }
+
         //------------------------------------------------------------------------------
 
         public bool Execute(ClipType clipType, Paths solution,
@@ -1854,12 +1866,15 @@ namespace ExtrasClipperLib
                     //return false if a subj line has been flagged as inside a subj polygon
                     if (edge.WindDelta == 0 && edge.WindCnt != 1) return false;
                     break;
+
                 case PolyFillType.pftNonZero:
                     if (Math.Abs(edge.WindCnt) != 1) return false;
                     break;
+
                 case PolyFillType.pftPositive:
                     if (edge.WindCnt != 1) return false;
                     break;
+
                 default: //PolyFillType.pftNegative
                     if (edge.WindCnt != -1) return false;
                     break;
@@ -1873,8 +1888,10 @@ namespace ExtrasClipperLib
                         case PolyFillType.pftEvenOdd:
                         case PolyFillType.pftNonZero:
                             return (edge.WindCnt2 != 0);
+
                         case PolyFillType.pftPositive:
                             return (edge.WindCnt2 > 0);
+
                         default:
                             return (edge.WindCnt2 < 0);
                     }
@@ -1884,8 +1901,10 @@ namespace ExtrasClipperLib
                         case PolyFillType.pftEvenOdd:
                         case PolyFillType.pftNonZero:
                             return (edge.WindCnt2 == 0);
+
                         case PolyFillType.pftPositive:
                             return (edge.WindCnt2 <= 0);
+
                         default:
                             return (edge.WindCnt2 >= 0);
                     }
@@ -1896,8 +1915,10 @@ namespace ExtrasClipperLib
                             case PolyFillType.pftEvenOdd:
                             case PolyFillType.pftNonZero:
                                 return (edge.WindCnt2 == 0);
+
                             case PolyFillType.pftPositive:
                                 return (edge.WindCnt2 <= 0);
+
                             default:
                                 return (edge.WindCnt2 >= 0);
                         }
@@ -1907,8 +1928,10 @@ namespace ExtrasClipperLib
                             case PolyFillType.pftEvenOdd:
                             case PolyFillType.pftNonZero:
                                 return (edge.WindCnt2 != 0);
+
                             case PolyFillType.pftPositive:
                                 return (edge.WindCnt2 > 0);
+
                             default:
                                 return (edge.WindCnt2 < 0);
                         }
@@ -1919,8 +1942,10 @@ namespace ExtrasClipperLib
                             case PolyFillType.pftEvenOdd:
                             case PolyFillType.pftNonZero:
                                 return (edge.WindCnt2 == 0);
+
                             case PolyFillType.pftPositive:
                                 return (edge.WindCnt2 <= 0);
+
                             default:
                                 return (edge.WindCnt2 >= 0);
                         }
@@ -2143,7 +2168,6 @@ namespace ExtrasClipperLib
         }
 
         //------------------------------------------------------------------------------
-
 
         private void AddLocalMaxPoly(TEdge e1, TEdge e2, IntPoint pt)
         {
@@ -2400,7 +2424,7 @@ namespace ExtrasClipperLib
 
         //------------------------------------------------------------------------------
 
-        bool OutRec1RightOfOutRec2(OutRec outRec1, OutRec outRec2)
+        private bool OutRec1RightOfOutRec2(OutRec outRec1, OutRec outRec2)
         {
             do
             {
@@ -2739,15 +2763,18 @@ namespace ExtrasClipperLib
                             if (e1Wc2 > 0 && e2Wc2 > 0)
                                 AddLocalMinPoly(e1, e2, pt);
                             break;
+
                         case ClipType.ctUnion:
                             if (e1Wc2 <= 0 && e2Wc2 <= 0)
                                 AddLocalMinPoly(e1, e2, pt);
                             break;
+
                         case ClipType.ctDifference:
                             if (((e1.PolyTyp == PolyType.ptClip) && (e1Wc2 > 0) && (e2Wc2 > 0)) ||
                                 ((e1.PolyTyp == PolyType.ptSubject) && (e1Wc2 <= 0) && (e2Wc2 <= 0)))
                                 AddLocalMinPoly(e1, e2, pt);
                             break;
+
                         case ClipType.ctXor:
                             AddLocalMinPoly(e1, e2, pt);
                             break;
@@ -2785,7 +2812,7 @@ namespace ExtrasClipperLib
 
         //------------------------------------------------------------------------------
 
-        void GetHorzDirection(TEdge HorzEdge, out Direction Dir, out cInt Left, out cInt Right)
+        private void GetHorzDirection(TEdge HorzEdge, out Direction Dir, out cInt Left, out cInt Right)
         {
             if (HorzEdge.Bot.X < HorzEdge.Top.X)
             {
@@ -2837,7 +2864,7 @@ namespace ExtrasClipperLib
             }
 
             OutPt op1 = null;
-            for (;;) //loop through consec. horizontal edges
+            for (; ; ) //loop through consec. horizontal edges
             {
                 bool IsLastHorz = (horzEdge == eLastHorz);
                 TEdge e = GetNextInAEL(horzEdge, dir);
@@ -3558,7 +3585,7 @@ namespace ExtrasClipperLib
             outRec.BottomPt = null;
             OutPt pp = outRec.Pts;
             bool preserveCol = PreserveCollinear || StrictlySimple;
-            for (;;)
+            for (; ; )
             {
                 if (pp.Prev == pp || pp.Prev == pp.Next)
                 {
@@ -3587,7 +3614,7 @@ namespace ExtrasClipperLib
 
         //------------------------------------------------------------------------------
 
-        OutPt DupOutPt(OutPt outPt, bool InsertAfter)
+        private OutPt DupOutPt(OutPt outPt, bool InsertAfter)
         {
             OutPt result = new OutPt();
             result.Pt = outPt.Pt;
@@ -3611,16 +3638,16 @@ namespace ExtrasClipperLib
 
         //------------------------------------------------------------------------------
 
-        bool GetOverlap(cInt a1, cInt a2, cInt b1, cInt b2, out cInt Left, out cInt Right)
+        private bool GetOverlap(cInt a1, cInt a2, cInt b1, cInt b2, out cInt Left, out cInt Right)
         {
             if (a1 < a2)
             {
-                if (b1 < b2) {Left = Math.Max(a1, b1); Right = Math.Min(a2, b2); }
-                else {Left = Math.Max(a1, b2); Right = Math.Min(a2, b1); }
+                if (b1 < b2) { Left = Math.Max(a1, b1); Right = Math.Min(a2, b2); }
+                else { Left = Math.Max(a1, b2); Right = Math.Min(a2, b1); }
             }
             else
             {
-                if (b1 < b2) {Left = Math.Max(a2, b1); Right = Math.Min(a1, b2); }
+                if (b1 < b2) { Left = Math.Max(a2, b1); Right = Math.Min(a1, b2); }
                 else { Left = Math.Max(a2, b2); Right = Math.Min(a1, b1); }
             }
             return Left < Right;
@@ -3628,7 +3655,7 @@ namespace ExtrasClipperLib
 
         //------------------------------------------------------------------------------
 
-        bool JoinHorz(OutPt op1, OutPt op1b, OutPt op2, OutPt op2b,
+        private bool JoinHorz(OutPt op1, OutPt op1b, OutPt op2, OutPt op2b,
             IntPoint Pt, bool DiscardLeft)
         {
             Direction Dir1 = (op1.Pt.X > op1b.Pt.X ?
@@ -4308,7 +4335,7 @@ namespace ExtrasClipperLib
             //see http://en.wikipedia.org/wiki/Perpendicular_distance
             double A = ln1.Y - ln2.Y;
             double B = ln2.X - ln1.X;
-            double C = A * ln1.X  + B * ln1.Y;
+            double C = A * ln1.X + B * ln1.Y;
             C = A * pt.X + B * pt.Y - C;
             return (C * C) / (A * A + B * B);
         }
@@ -4977,7 +5004,7 @@ namespace ExtrasClipperLib
 
         //------------------------------------------------------------------------------
 
-        void OffsetPoint(int j, ref int k, JoinType jointype)
+        private void OffsetPoint(int j, ref int k, JoinType jointype)
         {
             //cross product ...
             m_sinA = (m_normals[k].X * m_normals[j].Y - m_normals[j].X * m_normals[k].Y);
@@ -5009,12 +5036,12 @@ namespace ExtrasClipperLib
                 switch (jointype)
                 {
                     case JoinType.jtMiter:
-                    {
-                        double r = 1 + (m_normals[j].X * m_normals[k].X +
-                                        m_normals[j].Y * m_normals[k].Y);
-                        if (r >= m_miterLim) DoMiter(j, k, r); else DoSquare(j, k);
-                        break;
-                    }
+                        {
+                            double r = 1 + (m_normals[j].X * m_normals[k].X +
+                                            m_normals[j].Y * m_normals[k].Y);
+                            if (r >= m_miterLim) DoMiter(j, k, r); else DoSquare(j, k);
+                            break;
+                        }
                     case JoinType.jtSquare: DoSquare(j, k); break;
                     case JoinType.jtRound: DoRound(j, k); break;
                 }
@@ -5070,9 +5097,12 @@ namespace ExtrasClipperLib
         //------------------------------------------------------------------------------
     }
 
-    class ClipperException : Exception
+    internal class ClipperException : Exception
     {
-        public ClipperException(string description) : base(description) {}
+        public ClipperException(string description) : base(description)
+        {
+        }
     }
+
     //------------------------------------------------------------------------------
 } //end ClipperLib namespace

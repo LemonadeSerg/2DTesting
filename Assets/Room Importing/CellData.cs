@@ -1,6 +1,5 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+using System.Drawing;
 using UnityEngine;
 
 [Serializable]
@@ -23,9 +22,10 @@ public class CellData
     //Loaded at run time
     public Texture2D[] textures;
 
+    public Vector2[] points;
+
     public override string ToString()
     {
         return roomName;
     }
-
 }

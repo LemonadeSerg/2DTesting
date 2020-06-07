@@ -1,15 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Windows;
 
 public class CellLoader : MonoBehaviour
 {
-    string CellsPath;
+    private string CellsPath;
 
     public List<CellData> cellCollection;
 
-    void Start()
+    private void Start()
     {
         cellCollection = new List<CellData>();
         CellsPath = Application.dataPath + "/Rooms/";
@@ -19,28 +18,29 @@ public class CellLoader : MonoBehaviour
         }
     }
 
-    public void loadCells()
+    public void LoadCells()
     {
-        findRooms();
+        FindRooms();
 
-        for(int i = 0; i < cellCollection.Count; i++)
+        for (int i = 0; i < cellCollection.Count; i++)
         {
-            loadTexture(cellCollection[i]);
+            LoadTexture(cellCollection[i]);
             cellCollection[i].ID = i;
         }
     }
-    void findRooms()
+
+    private void FindRooms()
     {
         foreach (string file in System.IO.Directory.GetFiles(CellsPath))
         {
             if (file.EndsWith(".json") && !file.Contains("Example"))
             {
-                loadJson(file);
+                LoadJson(file);
             }
         }
     }
 
-    void loadJson(string fileName)
+    private void LoadJson(string fileName)
     {
         using (System.IO.StreamReader stream = new System.IO.StreamReader(fileName))
         {
@@ -49,27 +49,27 @@ public class CellLoader : MonoBehaviour
         }
     }
 
-    void loadTexture(CellData rc)
+    private void LoadTexture(CellData rc)
     {
         rc.textures = new Texture2D[rc.images.Length];
-        for(int i = 0; i < rc.images.Length;i++)
+        for (int i = 0; i < rc.images.Length; i++)
         {
-            rc.textures[i] = LoadPNG(CellsPath + rc.subFolder + "/" + rc.images[i]);
+            rc.textures[i] = LoadPNG(CellsPath + rc.subFolder + "/" + rc.images[i], rc.images[i]);
         }
     }
 
-    public static Texture2D LoadPNG(string filePath)
+    public static Texture2D LoadPNG(string filePath,string spriteName)
     {
-
         Texture2D tex = null;
         byte[] fileData;
 
         if (File.Exists(filePath))
         {
             fileData = File.ReadAllBytes(filePath);
-            tex = new Texture2D(4, 4);
+            tex = new Texture2D(2, 2);
             tex.LoadImage(fileData); //..this will auto-resize the texture dimensions.
         }
+        tex.name = spriteName;
         return tex;
     }
 }

@@ -1,13 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using UnityEngine;
 
 public class CellSaver : MonoBehaviour
 {
-    string CellsPath;
+    private string CellsPath;
 
-    void Start()
+    private void Start()
     {
         CellsPath = Application.dataPath + "/Rooms/";
     }
@@ -24,5 +22,19 @@ public class CellSaver : MonoBehaviour
             string json = JsonUtility.ToJson(roomTemp);
             stream.Write(json);
         }
+
+        for (int i = 0; i < roomTemp.layer.Length; i++)
+        {
+            saveTexture2D(roomTemp.textures[i], CellsPath + roomTemp.subFolder + "/" + roomTemp.images[i]);
+        }
+    }
+
+    public void saveTexture2D(Texture2D texture,string filePath)
+    {
+        var pixels = texture.GetPixels32();
+        Texture2D tex = new Texture2D(texture.width,texture.height,TextureFormat.ARGB32,false);
+        tex.SetPixels32(pixels);
+        byte[] bytes = tex.EncodeToPNG();
+        File.WriteAllBytes(filePath, bytes);
     }
 }

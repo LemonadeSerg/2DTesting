@@ -1,16 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.U2D;
 
 public class Sprinkler : MonoBehaviour
 {
-
     public GameObject m_Prefab;
     public float m_RandomFactor = 10.0f;
     public bool m_UseNormals = false;
 
-    float Angle(Vector3 a, Vector3 b)
+    private float Angle(Vector3 a, Vector3 b)
     {
         float dot = Vector3.Dot(a, b);
         float det = (a.x * b.y) - (b.x * a.y);
@@ -18,14 +15,14 @@ public class Sprinkler : MonoBehaviour
     }
 
     // Use this for initialization. Plant the Prefabs on Startup
-    void Start ()
+    private void Start()
     {
         SpriteShapeController ssc = GetComponent<SpriteShapeController>();
         Spline spl = ssc.spline;
 
         for (int i = 1; i < spl.GetPointCount() - 1; ++i)
         {
-            if (Random.Range(0, 100) > (100 - m_RandomFactor) )
+            if (Random.Range(0, 100) > (100 - m_RandomFactor))
             {
                 var go = GameObject.Instantiate(m_Prefab);
                 go.transform.position = spl.GetPosition(i);
@@ -43,11 +40,10 @@ public class Sprinkler : MonoBehaviour
                 }
             }
         }
-	}
-	
-	// Update is called once per frame
-	void Update ()
-    {
+    }
 
+    // Update is called once per frame
+    private void Update()
+    {
     }
 }

@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Animations;
+﻿using UnityEngine;
 
 public class StepProjection : MonoBehaviour
 {
@@ -17,9 +14,9 @@ public class StepProjection : MonoBehaviour
     public float gradient;
 
     public Vector2 plantedLeftVector, plantedRightVector;
-    RaycastHit2D Projection = new RaycastHit2D();
+    private RaycastHit2D Projection = new RaycastHit2D();
 
-    float xAxis;
+    private float xAxis;
     public bool moving;
     public float moveSpeed;
     public float movingAmount;
@@ -29,12 +26,12 @@ public class StepProjection : MonoBehaviour
     public int lastDir;
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        plantFeet();
+        PlantFeet();
     }
 
-    void plantFeet()
+    private void PlantFeet()
     {
         if (leftFoot.transform.position.x < rightFoot.transform.position.x)
         {
@@ -48,7 +45,7 @@ public class StepProjection : MonoBehaviour
         }
     }
 
-    float getValidStepDistance()
+    private float GetValidStepDistance()
     {
         curveV = new Vector2[4];
         float validCurveDistanceMulti = 0;
@@ -60,7 +57,7 @@ public class StepProjection : MonoBehaviour
                 curveV[1] = plantedRightVector + Vector2.up * stepPeak;
                 curveV[2] = plantedRightVector + Vector2.right * stepDistance * (1 - i);
                 curveV[3] = plantedRightVector + Vector2.down * footDown;
-                Projection = multiCurveCast(curveV, true);
+                Projection = MultiCurveCast(curveV, true);
             }
             if (xAxis < 0 && lastDir <= 0)
             {
@@ -68,24 +65,22 @@ public class StepProjection : MonoBehaviour
                 curveV[1] = plantedLeftVector + Vector2.up * stepPeak;
                 curveV[2] = plantedLeftVector + Vector2.left * stepDistance * (1 - i);
                 curveV[3] = plantedLeftVector + Vector2.down * footDown;
-                Projection = multiCurveCast(curveV, false);
+                Projection = MultiCurveCast(curveV, false);
             }
 
-
             if (Projection.collider != null)
-                if (isGradValid(getGradientFromVector(Projection.point)))
+                if (IsGradValid(getGradientFromVector(Projection.point)))
                 {
                     Debug.DrawRay(Projection.point, Vector2.up, Color.green);
                     validCurveDistanceMulti = i;
                     break;
                 }
-
         }
 
         return validCurveDistanceMulti;
     }
 
-    GameObject getMovingFoot(Vector2 dir)
+    private GameObject GetMovingFoot(Vector2 dir)
     {
         if (leftFoot.transform.position.x < rightFoot.transform.position.x && dir == Vector2.right)
             return leftFoot;
@@ -100,39 +95,39 @@ public class StepProjection : MonoBehaviour
             return leftFoot;
         else return null;
     }
-    // Update is called once per frame
-    void Update()
-    {
-       
 
+    // Update is called once per frame
+    private void Update()
+    {
         if (!moving && (movingAmount <= 0 || movingAmount >= 1))
-            plantFeet();
+            PlantFeet();
 
         xAxis = Input.GetAxis("Horizontal");
-        
-        if (getValidStepDistance() < 1)
+
+        if (GetValidStepDistance() < 1)
         {
             if (xAxis > 0 && lastDir >= 0)
             {
                 if (moving == false)
-                    MovingFoot = getMovingFoot(Vector2.right);
+                    MovingFoot = GetMovingFoot(Vector2.right);
                 moving = true;
                 movingAmount += moveSpeed * Time.deltaTime;
                 lastDir = 1;
-            }else
+            }
+            else
             if (xAxis < 0 && lastDir <= 0)
             {
                 if (moving == false)
-                    MovingFoot = getMovingFoot(Vector2.left);
+                    MovingFoot = GetMovingFoot(Vector2.left);
                 moving = true;
                 movingAmount += moveSpeed * Time.deltaTime;
                 lastDir = -1;
             }
             else
             {
-                if(movingAmount < 0.5f)
+                if (movingAmount < 0.5f)
                     movingAmount -= moveSpeed * 2 * Time.deltaTime;
-                else 
+                else
                     movingAmount += moveSpeed * 2 * Time.deltaTime;
                 movingAmount = Mathf.Clamp(movingAmount, 0, 1);
             }
@@ -142,75 +137,74 @@ public class StepProjection : MonoBehaviour
         {
             if (lastDir > 0)
             {
-                
                 if (movingAmount < 0.3333f)
                 {
                     Debug.Log("Moving 1/3 Path");
-                    MovingFoot.transform.position = plantedLeftVector + getVectorOfPath(movingAmount * 3, plantedLeftVector, plantedRightVector + Vector2.up * stepPeak, true);
+                    MovingFoot.transform.position = plantedLeftVector + GetVectorOfPath(movingAmount * 3, plantedLeftVector, plantedRightVector + Vector2.up * stepPeak, true);
                 }
                 else if (movingAmount < 0.6666f)
                 {
                     Debug.Log("Moving 2/3 Path");
-                    MovingFoot.transform.position = plantedRightVector + Vector2.up * stepPeak + getVectorOfPath((movingAmount - 0.3333f) * 3, plantedRightVector + Vector2.up * stepPeak, plantedRightVector + Vector2.right * (stepDistance * (1 - getValidStepDistance())), true);
+                    MovingFoot.transform.position = plantedRightVector + Vector2.up * stepPeak + GetVectorOfPath((movingAmount - 0.3333f) * 3, plantedRightVector + Vector2.up * stepPeak, plantedRightVector + Vector2.right * (stepDistance * (1 - GetValidStepDistance())), true);
                 }
                 else if (movingAmount < 1)
                 {
                     Debug.Log("Moving 3/3 Path");
-                    MovingFoot.transform.position = plantedRightVector + Vector2.right * (stepDistance * (1 - getValidStepDistance())) + getVectorOfPath((movingAmount - 0.6666f) * 3, plantedRightVector + Vector2.right * (stepDistance * (1 - getValidStepDistance())), plantedRightVector + Vector2.down * footDown, true);
-                }
-            } else if(lastDir < 0){
-                
-                if (movingAmount < 0.3333f)
-                {
-                    Debug.Log("Moving 1/3 Path");
-                    MovingFoot.transform.position = plantedRightVector + getVectorOfPath(movingAmount * 3, plantedRightVector, plantedLeftVector + Vector2.up * stepPeak, false) ;
-                }
-                else if (movingAmount < 0.6666f)
-                {
-                    Debug.Log("Moving 2/3 Path");
-                    MovingFoot.transform.position = plantedLeftVector + Vector2.up * stepPeak + getVectorOfPath((movingAmount - 0.3333f) * 3, plantedLeftVector + Vector2.up * stepPeak, plantedLeftVector + Vector2.left * (stepDistance * (1 - getValidStepDistance())), false);
-                }
-                else if (movingAmount < 1)
-                {
-                    Debug.Log("Moving 3/3 Path");
-                    MovingFoot.transform.position = plantedLeftVector + Vector2.left * (stepDistance * (1 - getValidStepDistance())) + getVectorOfPath((movingAmount - 0.6666f) * 3, plantedLeftVector + Vector2.left * (stepDistance * (1 - getValidStepDistance())), plantedLeftVector + Vector2.down * footDown, false);
+                    MovingFoot.transform.position = plantedRightVector + Vector2.right * (stepDistance * (1 - GetValidStepDistance())) + GetVectorOfPath((movingAmount - 0.6666f) * 3, plantedRightVector + Vector2.right * (stepDistance * (1 - GetValidStepDistance())), plantedRightVector + Vector2.down * footDown, true);
                 }
             }
-        }else if (Vector2.Distance(MovingFoot.transform.position, Projection.point) < 0.1f)
+            else if (lastDir < 0)
+            {
+                if (movingAmount < 0.3333f)
+                {
+                    Debug.Log("Moving 1/3 Path");
+                    MovingFoot.transform.position = plantedRightVector + GetVectorOfPath(movingAmount * 3, plantedRightVector, plantedLeftVector + Vector2.up * stepPeak, false);
+                }
+                else if (movingAmount < 0.6666f)
+                {
+                    Debug.Log("Moving 2/3 Path");
+                    MovingFoot.transform.position = plantedLeftVector + Vector2.up * stepPeak + GetVectorOfPath((movingAmount - 0.3333f) * 3, plantedLeftVector + Vector2.up * stepPeak, plantedLeftVector + Vector2.left * (stepDistance * (1 - GetValidStepDistance())), false);
+                }
+                else if (movingAmount < 1)
+                {
+                    Debug.Log("Moving 3/3 Path");
+                    MovingFoot.transform.position = plantedLeftVector + Vector2.left * (stepDistance * (1 - GetValidStepDistance())) + GetVectorOfPath((movingAmount - 0.6666f) * 3, plantedLeftVector + Vector2.left * (stepDistance * (1 - GetValidStepDistance())), plantedLeftVector + Vector2.down * footDown, false);
+                }
+            }
+        }
+        else if (Vector2.Distance(MovingFoot.transform.position, Projection.point) < 0.1f)
         {
             MovingFoot.transform.position = Projection.point + Vector2.up * 0.1f;
             moving = false;
             movingAmount = 0;
-            plantFeet();
+            PlantFeet();
             lastDir = 0;
         }
 
         if (movingAmount <= 0)
         {
-
             if (lastDir > 0)
                 MovingFoot.transform.position = plantedLeftVector;
-            else if(lastDir <0)
+            else if (lastDir < 0)
                 MovingFoot.transform.position = plantedRightVector;
             movingAmount = 0;
-                moving = false;
-                lastDir = 0;
+            moving = false;
+            lastDir = 0;
         }
     }
 
-
     //Gets Vector Change
     //From origin to peak by travelx amount
-    Vector2 getVectorOfPath(float travelx, Vector2 origin, Vector2 peak, bool positive)
+    private Vector2 GetVectorOfPath(float travelx, Vector2 origin, Vector2 peak, bool positive)
     {
         //Calculates the vector change
         Vector2 Difference = peak - origin;
-        
+
         //Stores stores the value of where along curve is read
         //0 = first half of the curve
         //0.5 = secondHalf
         float startXPer;
-        
+
         //Depending on the vector change the curve will need to be either the steepRise or smooth Rise
         if (Difference.x > 0 && Difference.y < 0 || Difference.x < 0 && Difference.y > 0)
             if (positive)
@@ -232,22 +226,21 @@ public class StepProjection : MonoBehaviour
         float y = -(((testX + 2 * startXPer * Difference.x) - Difference.x) / (Difference.x * Difference.x)) * (((testX + 2 * startXPer * Difference.x) - Difference.x) * Difference.y) + Difference.y;
 
         //if startXPer == 0.5 yAxis needs flipping
-        if(startXPer == 0.5)
+        if (startXPer == 0.5)
             return new Vector2(testX, Difference.y - y);
         else
             return new Vector2(testX, y);
     }
-  
+
     //Take sample cast from either side of point
     //(y-y)/(x-x) = gradient
     //if either collider fails or it's not withing distance
     //returns 999 used as invalid
-    float getGradientFromVector(Vector2 point)
+    private float getGradientFromVector(Vector2 point)
     {
         float seperation = 0.05f;
         float lift = 0.1f;
         float down = 0.1f;
-
 
         RaycastHit2D rh = Linecast(point + Vector2.right * seperation + Vector2.up * lift, point + Vector2.right * seperation + Vector2.down * down, Color.black);
         RaycastHit2D lh = Linecast(point - Vector2.right * seperation + Vector2.up * lift, point - Vector2.right * seperation + Vector2.down * down, Color.black);
@@ -258,11 +251,11 @@ public class StepProjection : MonoBehaviour
         if (rh.collider.gameObject != lh.collider.gameObject)
             return 999;
         else
-            return (rh.point.y - lh.point.y)/ (rh.point.x - lh.point.x);
+            return (rh.point.y - lh.point.y) / (rh.point.x - lh.point.x);
     }
 
     //Checks if gradient is within a limit
-    bool isGradValid(float grad)
+    private bool IsGradValid(float grad)
     {
         float limit = 1.3f; //1f = 45Degres
         gradient = grad;
@@ -270,71 +263,68 @@ public class StepProjection : MonoBehaviour
             return true;
         else
             return false;
-        
     }
 
     //Projects curveCast across 2+ points using Vector2 Points
     //Offset allows for Shrinking Rays Distance from origin
-    RaycastHit2D multiCurveCast(Vector2[] points, bool positive)
+    private RaycastHit2D MultiCurveCast(Vector2[] points, bool positive)
     {
         RaycastHit2D rh = new RaycastHit2D();
         if (points.Length > 1)
-            rh = curveCast(points[0], points[0 + 1], positive);
+            rh = CurveCast(points[0], points[0 + 1], positive);
+        if (rh.collider != null)
+            return rh;
+        for (int i = 1; i < points.Length - 1; i++)
+        {
+            rh = CurveCast(points[i], points[i + 1], positive);
             if (rh.collider != null)
                 return rh;
-        for (int i = 1; i < points.Length - 1; i++) 
-            {
-                rh = curveCast(points[i], points[i + 1], positive);
-                if (rh.collider != null)
-                    return rh;
-            }
+        }
         return rh;
     }
 
     //Projects curveCast across 2+ points using gameObjects to detarmin points
-    RaycastHit2D multiCurveCast(GameObject[] points, bool positive)
+    private RaycastHit2D MultiCurveCast(GameObject[] points, bool positive)
     {
         Vector2[] Vpoints = new Vector2[points.Length];
         for (int i = 0; i < points.Length; i++)
         {
             Vpoints[i] = points[i].transform.position;
         }
-        return multiCurveCast(Vpoints, positive);
+        return MultiCurveCast(Vpoints, positive);
     }
-
 
     //Projects Linecast across a curve through two points
     //postive true will push curve away from local theoretical center
     //postive false will pull crurve towards local theoretical center
-    RaycastHit2D curveCast(Vector2 point1, Vector2 point2,bool positive)
+    private RaycastHit2D CurveCast(Vector2 point1, Vector2 point2, bool positive)
     {
         RaycastHit2D rh = new RaycastHit2D();
         for (float x = 0f; x < 1; x += (1f / projectionResoultion))
         {
             rh = Linecast(
-                point1 + getVectorOfPath(x,
+                point1 + GetVectorOfPath(x,
                 point1,
                 point2, positive),
-                point1 + getVectorOfPath(x + (1f / projectionResoultion),
+                point1 + GetVectorOfPath(x + (1f / projectionResoultion),
                 point1,
-                point2, positive),Color.red);
+                point2, positive), Color.red);
             if (rh.collider != null)
                 return rh;
         }
         return rh;
     }
 
-
     //Simply draws a debug line when using linecast
-    RaycastHit2D Linecast(Vector2 start, Vector2 end)
+    private RaycastHit2D Linecast(Vector2 start, Vector2 end)
     {
         Debug.DrawLine(start, end);
         return Physics2D.Linecast(start, end);
     }
-    RaycastHit2D Linecast(Vector2 start, Vector2 end,Color color)
+
+    private RaycastHit2D Linecast(Vector2 start, Vector2 end, Color color)
     {
         Debug.DrawLine(start, end, color);
         return Physics2D.Linecast(start, end);
     }
-
 }

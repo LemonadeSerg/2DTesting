@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.U2D;
 
 // Dynamic modification of spline to follow the path of mouse movement.
@@ -12,9 +10,8 @@ public class SimpleDraw : MonoBehaviour
     private Vector3 lastPosition;
 
     // Use this for initialization
-    void Start()
+    private void Start()
     {
-
     }
 
     private void Smoothen(SpriteShapeController sc, int pointIndex)
@@ -37,7 +34,7 @@ public class SimpleDraw : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         var mp = Input.mousePosition;
         mp.z = 10.0f;

@@ -1,33 +1,31 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.U2D;
 
 #if UNITY_EDITOR
+
 using UnityEditor;
+
 #endif
 
 // Demo Script Usage:
 //   When you want multiple SpriteShapes to share a common Spline,
-//   attach this script to the secondary objects you would like to 
+//   attach this script to the secondary objects you would like to
 //   copy the Spline and set the ParentObject to the original object
 //   you are copying from.
 
 [ExecuteInEditMode]
 public class ConformingSpline : MonoBehaviour
 {
-
     public GameObject m_ParentObject;
     private int hashCode;
 
     // Use this for initialization
-    void Start()
+    private void Start()
     {
-
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if (m_ParentObject != null)
         {
@@ -54,5 +52,4 @@ public class ConformingSpline : MonoBehaviour
 #endif
         return hashCode;
     }
-
 }

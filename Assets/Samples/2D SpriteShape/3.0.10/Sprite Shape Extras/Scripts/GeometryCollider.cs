@@ -1,29 +1,28 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Unity.Collections;
 using UnityEngine;
-using UnityEngine.Experimental.U2D;
 using UnityEngine.U2D;
 
 #if UNITY_EDITOR
+
 using UnityEditor;
+
 #endif
 
 [ExecuteAlways]
 public class GeometryCollider : MonoBehaviour
 {
     [SerializeField]
-    bool m_UpdateCollider = false;
+    private bool m_UpdateCollider = false;
 
-    int m_HashCode = 0;
+    private int m_HashCode = 0;
 
-    void Start()
+    private void Start()
     {
-        
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if (m_UpdateCollider)
             Bake(gameObject, false);
@@ -40,7 +39,7 @@ public class GeometryCollider : MonoBehaviour
         {
             var spline = spriteShapeController.spline;
             if (geometryCollider != null)
-            { 
+            {
                 int splineHashCode = spline.GetHashCode();
                 if (splineHashCode == geometryCollider.m_HashCode && !forced)
                     return;
@@ -76,7 +75,7 @@ public class GeometryCollider : MonoBehaviour
     }
 
     // Generate the outer edges from the Renderer mesh. Based on code from www.h3xed.com
-    static void OuterEdges(PolygonCollider2D polygonCollider, NativeArray<ushort> triangles, NativeSlice<Vector3> vertices, int triangleCount)
+    private static void OuterEdges(PolygonCollider2D polygonCollider, NativeArray<ushort> triangles, NativeSlice<Vector3> vertices, int triangleCount)
     {
         // Get just the outer edges from the mesh's triangles (ignore or remove any shared edges)
         Dictionary<string, KeyValuePair<int, int>> edges = new Dictionary<string, KeyValuePair<int, int>>();
@@ -118,7 +117,6 @@ public class GeometryCollider : MonoBehaviour
         List<Vector2> colliderPath = new List<Vector2>();
         while (true)
         {
-
             // Add vertex to collider path
             colliderPath.Add(vertices[nextVert]);
 
@@ -134,7 +132,6 @@ public class GeometryCollider : MonoBehaviour
             // Shape complete
             if (nextVert == startVert)
             {
-
                 // Add path to polygon collider
                 polygonCollider.pathCount++;
                 polygonCollider.SetPath(polygonCollider.pathCount - 1, colliderPath.ToArray());
@@ -143,7 +140,6 @@ public class GeometryCollider : MonoBehaviour
                 // Go to next shape if one exists
                 if (lookup.ContainsKey(highestVert + 1))
                 {
-
                     // Set starting and next vertices
                     startVert = highestVert + 1;
                     nextVert = startVert;

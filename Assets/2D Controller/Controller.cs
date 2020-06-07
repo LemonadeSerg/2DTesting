@@ -12,6 +12,7 @@ public class Controller : MonoBehaviour
     public float dashForce;
 
     public bool grounded;
+
     public bool crouched;
     public bool climbing;
     public bool attacking;
@@ -49,7 +50,7 @@ public class Controller : MonoBehaviour
         xAxis = Input.GetAxis("Horizontal");
         yAxis = Input.GetAxis("Vertical");
 
-        flipSpriteFixCollider(xAxis);
+        FlipSpriteFixCollider(xAxis);
 
         if (Input.GetMouseButton(0))
         {
@@ -59,7 +60,7 @@ public class Controller : MonoBehaviour
 
         if (!climbing)
         {
-            groundCheck();
+            GroundCheck();
 
             if (Input.GetKeyDown(KeyCode.LeftControl))
                 crouch();
@@ -77,19 +78,19 @@ public class Controller : MonoBehaviour
             }
             else
             {
-                airHorizontalMovement();
+                AirHorizontalMovement();
             }
         }
         else
         {
-            climbingA();
+            ClimbingA();
         }
 
-        passDataToAnimator();
+        PassDataToAnimator();
         attacking = false;
     }
 
-    private void airHorizontalMovement()
+    private void AirHorizontalMovement()
     {
         rb.velocity = new Vector2(Mathf.Lerp(rb.velocity.x, xAxis * movingSpeedAir, velocityHomingPower), rb.velocity.y);
     }
@@ -97,18 +98,16 @@ public class Controller : MonoBehaviour
     private void groundHorizontalMovement()
     {
         if (attacking)
-            rb.velocity = velocityLerp(movingSpeedAttacking);
-        else
-               if (!crouched)
-            rb.velocity = velocityLerp(movingSpeedStanding);
-        else
-               if (crouched)
-            rb.velocity = velocityLerp(movingSpeedCrouched);
+            rb.velocity = VelocityLerp(movingSpeedAttacking);
+        else if (!crouched)
+            rb.velocity = VelocityLerp(movingSpeedStanding);
+        else if (crouched)
+            rb.velocity = VelocityLerp(movingSpeedCrouched);
     }
 
-    private void groundCheck()
+    private void GroundCheck()
     {
-        if (collisionCheck(GroundSensor.transform.position, Vector2.down) < 0.15f)
+        if (CollisionCheck(GroundSensor.transform.position, Vector2.down) < 0.15f)
         {
             grounded = true;
             dashLeft = dashMax;
@@ -119,7 +118,7 @@ public class Controller : MonoBehaviour
         }
     }
 
-    private void climbingA()
+    private void ClimbingA()
     {
         this.transform.position = Vector2.Lerp(climbable.gameObject.transform.position, climbable.Landing.transform.position, (Time.time - climbStart) / climbTime);
         if (Time.time - climbTime > climbStart)
@@ -132,7 +131,7 @@ public class Controller : MonoBehaviour
 
     private void attack()
     {
-        if (crouched && canUncrouch())
+        if (crouched && CanUncrouch())
             crouch();
         if (!crouched)
             anim.Play("Attack");
@@ -147,7 +146,7 @@ public class Controller : MonoBehaviour
 
     private void crouch()
     {
-        if (crouched && canUncrouch())
+        if (crouched && CanUncrouch())
         {
             crouched = false;
             StandingCollider.enabled = true;
@@ -172,26 +171,26 @@ public class Controller : MonoBehaviour
             rb.AddForce(Vector2.up * jumpForceCrouched, ForceMode2D.Impulse);
         if (!crouched)
             rb.AddForce(Vector2.up * jumpForceStanding, ForceMode2D.Impulse);
-        if (canUncrouch() && crouched)
+        if (CanUncrouch() && crouched)
             crouch();
     }
 
-    private void passDataToAnimator()
+    private void PassDataToAnimator()
     {
         anim.SetFloat("Speed", Mathf.Abs(xAxis));
         anim.SetFloat("YVelocity", rb.velocity.y);
         anim.SetBool("Grounded", grounded);
     }
 
-    private bool canUncrouch()
+    private bool CanUncrouch()
     {
-        if (collisionCheck(HeadSensor.transform.position, Vector2.up) > 1f)
+        if (CollisionCheck(HeadSensor.transform.position, Vector2.up) > 1f)
             return true;
         else
             return false;
     }
 
-    private void flipSpriteFixCollider(float xAxis)
+    private void FlipSpriteFixCollider(float xAxis)
     {
         if (xAxis > 0)
         {
@@ -209,7 +208,7 @@ public class Controller : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "Climb")
+        if (collision.gameObject.CompareTag("Climb"))
         {
             climbable = collision.GetComponent<Climbable>();
             canClimb = true;
@@ -218,13 +217,13 @@ public class Controller : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D collision)
     {
-        if (collision.gameObject.tag == "Climb")
+        if (collision.gameObject.CompareTag("Climb"))
         {
             canClimb = false;
         }
     }
 
-    private float collisionCheck(Vector2 Origin, Vector2 Direction)
+    private float CollisionCheck(Vector2 Origin, Vector2 Direction)
     {
         RaycastHit2D Rc = Raycast(Origin, Direction, Color.red);
         if (Rc.collider != null)
@@ -232,7 +231,7 @@ public class Controller : MonoBehaviour
         return 999;
     }
 
-    private Vector2 velocityLerp(float moveSpeed)
+    private Vector2 VelocityLerp(float moveSpeed)
     {
         return new Vector2(Mathf.Lerp(rb.velocity.x, xAxis * moveSpeed, velocityHomingPower), rb.velocity.y);
     }

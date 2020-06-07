@@ -1,11 +1,12 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.U2D;
 using ExtrasClipperLib;
 
 #if UNITY_EDITOR
-    using UnityEditor;
+
+using UnityEditor;
+
 #endif
 
 public enum ColliderCornerType
@@ -19,31 +20,31 @@ public enum ColliderCornerType
 public class LegacyCollider : MonoBehaviour
 {
     [SerializeField]
-    ColliderCornerType m_ColliderCornerType = ColliderCornerType.Square;
-    [SerializeField]
-    float m_ColliderOffset = 1.0f;
-    [SerializeField]
-    bool m_UpdateCollider = false;
+    private ColliderCornerType m_ColliderCornerType = ColliderCornerType.Square;
 
-    const float s_ClipperScale = 100000.0f;
-    int m_HashCode = 0;
+    [SerializeField]
+    private float m_ColliderOffset = 1.0f;
+
+    [SerializeField]
+    private bool m_UpdateCollider = false;
+
+    private const float s_ClipperScale = 100000.0f;
+    private int m_HashCode = 0;
 
     // Start is called before the first frame update
-    void Start()
+    private void Start()
     {
-        
     }
 
     // Update is called once per frame
-    void Update()
+    private void Update()
     {
         if (m_UpdateCollider)
             Bake(gameObject, false);
     }
 
-    static void SampleCurve(float colliderDetail, Vector3 startPoint, Vector3 startTangent, Vector3 endPoint, Vector3 endTangent, ref List<IntPoint> path)
+    private static void SampleCurve(float colliderDetail, Vector3 startPoint, Vector3 startTangent, Vector3 endPoint, Vector3 endTangent, ref List<IntPoint> path)
     {
-        
         if (startTangent.sqrMagnitude > 0f || endTangent.sqrMagnitude > 0f)
         {
             for (int j = 0; j <= colliderDetail; ++j)
@@ -79,7 +80,7 @@ public class LegacyCollider : MonoBehaviour
             float co = 1.0f;
 
             if (lc != null)
-            { 
+            {
                 int hashCode = sc.spline.GetHashCode() + lc.m_ColliderCornerType.GetHashCode() + lc.m_ColliderOffset.GetHashCode();
                 if (lc.m_HashCode == hashCode && !forced)
                     return;
@@ -156,4 +157,3 @@ public class LegacyCollider : MonoBehaviour
 
 #endif
 }
-
