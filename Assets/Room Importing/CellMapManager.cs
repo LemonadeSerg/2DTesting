@@ -20,8 +20,6 @@ public class CellMapManager : MonoBehaviour
         ConvertCollectionToGameObject(cellLoader.cellCollection[0]);
     }
 
-
-
     private void ConvertCollectionToGameObject(CellData cellData)
     {
         GameObject go = new GameObject(cellData.roomName);
@@ -57,12 +55,12 @@ public class CellMapManager : MonoBehaviour
             if (cellData.collision[i])
             {
                 PolygonCollider2D pc2d = layerObject.AddComponent<PolygonCollider2D>();
-                if(cellData.points != null)
+                if (cellData.points != null)
                 {
                     pc2d.points = cellData.points;
                 }
             }
-            
+
             layers.Add(layerObject);
         }
 

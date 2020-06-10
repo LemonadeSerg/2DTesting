@@ -1,1 +1,0 @@
-{"ID":0,"roomName":"ExampleRoom","subFolder":"ExampleFolder/","images":["Background.png","Base.png","Decoration.png"],"layer":[0,1,2],"collision":[false,true,false],"textures":[],"EntrancePos":[{"x":-0.5,"y":0.5},{"x":0.5,"y":0.5}],"EntranceDir":["w","e"]}

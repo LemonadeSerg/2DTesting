@@ -29,10 +29,10 @@ public class CellSaver : MonoBehaviour
         }
     }
 
-    public void saveTexture2D(Texture2D texture,string filePath)
+    public void saveTexture2D(Texture2D texture, string filePath)
     {
         var pixels = texture.GetPixels32();
-        Texture2D tex = new Texture2D(texture.width,texture.height,TextureFormat.ARGB32,false);
+        Texture2D tex = new Texture2D(texture.width, texture.height, TextureFormat.ARGB32, false);
         tex.SetPixels32(pixels);
         byte[] bytes = tex.EncodeToPNG();
         File.WriteAllBytes(filePath, bytes);

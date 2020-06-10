@@ -58,7 +58,7 @@ public class CellLoader : MonoBehaviour
         }
     }
 
-    public static Texture2D LoadPNG(string filePath,string spriteName)
+    public static Texture2D LoadPNG(string filePath, string spriteName)
     {
         Texture2D tex = null;
         byte[] fileData;

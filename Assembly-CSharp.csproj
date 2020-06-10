@@ -63,8 +63,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\2D Controller\Climbable\Climbable.cs" />
-    <Compile Include="Assets\2D Controller\Controller.cs" />
+    <Compile Include="Assets\2D Controller\2D RPG\Scripts\RPGController.cs" />
+    <Compile Include="Assets\2D Controller\Platformer\Climbable\Climbable.cs" />
+    <Compile Include="Assets\2D Controller\Platformer\Controller.cs" />
+    <Compile Include="Assets\BiomeGen\Scripts\BoardCollection.cs" />
+    <Compile Include="Assets\BiomeGen\Scripts\HeatmapGen.cs" />
     <Compile Include="Assets\External\Free Asset - 2D Handcrafted Art\Scripts\CamerController.cs" />
     <Compile Include="Assets\Room Importing\CellData.cs" />
     <Compile Include="Assets\Room Importing\CellDoor.cs" />

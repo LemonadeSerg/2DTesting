@@ -26,8 +26,7 @@ public class CellManager : MonoBehaviour
         updateCollectionDoors();
     }
 
-
-    void updateCollectionDoors()
+    private void updateCollectionDoors()
     {
         cellData.EntranceDir = new string[CellDoors.Length];
         cellData.EntrancePos = new Vector2[CellDoors.Length];
@@ -37,9 +36,9 @@ public class CellManager : MonoBehaviour
             cellData.EntranceDir[i] = CellDoors[i].Dir;
             cellData.EntrancePos[i] = CellDoors[i].transform.localPosition;
         }
-
     }
-    void updateCollectionLayers()
+
+    private void updateCollectionLayers()
     {
         string[] img = new string[Layers.Length];
         bool[] col = new bool[Layers.Length];
@@ -65,7 +64,9 @@ public class CellManager : MonoBehaviour
             }
 
             if (col[i] == true && Layers[i].GetComponent<PolygonCollider2D>() != null)
+            {
                 cellData.points = Layers[i].GetComponent<PolygonCollider2D>().points;
+            }
         }
         cellData.images = img;
         cellData.collision = col;
