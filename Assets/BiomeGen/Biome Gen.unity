@@ -251,7 +251,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapSize: {x: 20, y: 20}
   genSpeed: 0
-  biomeCount: 12
+  biomeCount: 6
   biomeColors: []
   textureWidth: 800
   textureHeight: 800

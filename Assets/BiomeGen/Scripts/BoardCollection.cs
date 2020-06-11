@@ -25,7 +25,7 @@ public class BoardCollection
         connectedToOther = false;
     }
 
-    int getWallCount()
+    public int getWallCount()
     {
         int count = 0;
         if (topWall)
