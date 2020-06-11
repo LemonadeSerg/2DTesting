@@ -4,36 +4,114 @@ using UnityEngine;
 public class HeatmapGen : MonoBehaviour
 {
     public Vector2Int mapSize = new Vector2Int(100, 100);
-    public bool doUpdate = false;
     public float genSpeed;
-    public bool darkenBiomeWall = false;
-    public bool darkenOuterWall = false;
-
-    private float lastGen;
-    public BoardCollection[,] map;
-
-    private int initGen = 5;
-
-    private int genLevel = 5;
-    private int minChange = -2;
-    private int maxChange = 0;
 
     public int biomeCount;
-
     public Color[] biomeColors;
+    private bool mapChange;
 
-    public Texture2D Colormap;
+    public List<int[]> connections;
 
-    private int bio1, bio2;
+    public int textureWidth = 800, textureHeight = 800;
+    public int debugOverlayW = 200, debugOverlayH = 200;
+    public int TextureX = 0, TextureY = 0;
+
+    public bool RenderMap = false;
+    public bool RenderGrid = false;
+    public bool RenderDebug = false;
+
+    public GUIStyle debugStyle;
+
+    private bool DataInitalised = false;
+    private float lastGen;
+    private BoardCollection[,] map;
+    private Texture2D Colormap;
+    private Texture2D grid;
+    private int bio1;
 
     private void Start()
     {
-        map = new BoardCollection[mapSize.x, mapSize.y];
+        initMapData();
+        initTexureData();
+        DataInitalised = true;
+    }
 
-        biomeColors = new Color[biomeCount];
+    private void Update()
+    {
+        if (DataInitalised)
+        {
+            if (cleanSpaceCount() > 0)
+            {
+                if ((lastGen + genSpeed < Time.time))
+                {
+                    growBiome();
+                    if (cleanSpaceCount() <= 0)
+                    {
+                        wallOffBiomes();
+                    }
+                }
+                lastGen = Time.time;
+            }
+            if (cleanSpaceCount() == 0 && mapChange)
+            {
+                setBaseBiomeColor();
+                traitMarkBiome();
+                applyMapToTexture();
+
+
+                updateGrid();
+                mapChange = false;
+            }
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                bio1 = map[getMouseToMapCoord().x, getMouseToMapCoord().y].biomeID;
+            }
+
+            if (Input.GetButtonDown("Jump"))
+            {
+                wallOffBiomes();
+                mapChange = true;
+            }
+            if (Input.GetKeyDown(KeyCode.E))
+                for (int i = 0; i < biomeCount; i++)
+                {
+                    if (i != bio1)
+                        connecteBiome(bio1, i);
+                    mapChange = true;
+                }
+        }
+    }
+
+    private void OnGUI()
+    {
+        if (RenderMap) GUI.DrawTexture(new Rect(TextureX, TextureY, textureWidth, textureHeight), Colormap);
+        if (RenderGrid) GUI.DrawTexture(new Rect(TextureX, TextureY, textureWidth, textureHeight), grid);
+        if (RenderDebug) drawDebug();
+    }
+
+    private void initTexureData()
+    {
         Colormap = new Texture2D(mapSize.x, mapSize.y);
         Colormap.filterMode = FilterMode.Point;
 
+        grid = new Texture2D(debugOverlayW, debugOverlayH);
+        grid.filterMode = FilterMode.Point;
+
+        for (int x = 0; x < debugOverlayW; x++)
+        {
+            for (int y = 0; y < debugOverlayH; y++)
+            {
+                grid.SetPixel(x, y, Color.clear);
+            }
+        }
+    }
+
+    private void initMapData()
+    {
+        connections = new List<int[]>();
+
+        map = new BoardCollection[mapSize.x, mapSize.y];
         for (int x = 0; x < mapSize.x; x++)
         {
             for (int y = 0; y < mapSize.y; y++)
@@ -42,40 +120,91 @@ public class HeatmapGen : MonoBehaviour
                 map[x, y].Init();
             }
         }
+
+        biomeColors = new Color[biomeCount];
         for (int i = 0; i < biomeCount; i++)
         {
             biomeColors[i] = new Color(Random.Range(0F, 1F), Random.Range(0, 1F), Random.Range(0, 1F));
         }
+
         for (int i = 1; i < biomeCount; i++)
         {
             map[Random.Range(0, mapSize.x - 1), Random.Range(0, mapSize.y - 1)].biomeID = i;
         }
-        updateMapColors();
     }
 
-    private void Update()
+    private void growBiome()
     {
-        if (doUpdate && (lastGen + genSpeed < Time.time))
+        BoardCollection[,] tempMap = new BoardCollection[mapSize.x, mapSize.y];
+
+        for (int x = 0; x < mapSize.x; x++)
         {
-            doThing();
-            updateMapColors();
-            traitMarkBiome();
-            applyBiomeColorChange();
-            applyMapToTexture();
-            lastGen = Time.time;
+            for (int y = 0; y < mapSize.y; y++)
+            {
+                tempMap[x, y] = new BoardCollection();
+                tempMap[x, y].biomeID = map[x, y].biomeID;
+            }
         }
 
-        if (Input.GetMouseButtonDown(0))
+        for (int x = 0; x < mapSize.x; x++)
         {
-            bio1 = map[getMouseToMapCoord().x, getMouseToMapCoord().y].biomeID;
+            for (int y = 0; y < mapSize.y; y++)
+            {
+                if (tempMap[x, y].biomeID != 0)
+                {
+                    if (x > 0)
+                        if (tempMap[x - 1, y].biomeID == 0)
+                            map[x - 1, y].biomeID = expandChance(tempMap[x, y].biomeID, 1);
+                    if (y > 0)
+                        if (tempMap[x, y - 1].biomeID == 0)
+                            map[x, y - 1].biomeID = expandChance(tempMap[x, y].biomeID, 2);
+                    if (x < mapSize.x - 1)
+                        if (tempMap[x + 1, y].biomeID == 0)
+                            map[x + 1, y].biomeID = expandChance(tempMap[x, y].biomeID, 3);
+                    if (y < mapSize.y - 1)
+                        if (tempMap[x, y + 1].biomeID == 0)
+                            map[x, y + 1].biomeID = expandChance(tempMap[x, y].biomeID, 4);
+                }
+            }
         }
-        if (Input.GetMouseButtonDown(1))
+        mapChange = true;
+    }
+
+    private void setBaseBiomeColor()
+    {
+        for (int x = 0; x < mapSize.x; x++)
         {
-            bio2 = map[getMouseToMapCoord().x, getMouseToMapCoord().y].biomeID;
+            for (int y = 0; y < mapSize.y; y++)
+            {
+                map[x, y].color = biomeColors[map[x, y].biomeID];
+            }
         }
-        if (Input.GetButtonDown("Jump"))
+    }
+
+    private void traitMarkBiome()
+    {
+        for (int x = 0; x < mapSize.x; x++)
         {
-            connecteBiome(bio1, bio2);
+            for (int y = 0; y < mapSize.y; y++)
+            {
+                map[x, y].connectedToOther = false;
+                map[x, y].outerShell = false;
+
+                if (x == 0 || x == mapSize.x - 1 || y == 0 || y == mapSize.x - 1)
+                    map[x, y].outerShell = true;
+                if (x > 0)
+                    if (map[x - 1, y].biomeID != map[x, y].biomeID)
+                        map[x, y].connectedToOther = true;
+                if (y > 0)
+                    if (map[x, y - 1].biomeID != map[x, y].biomeID)
+                        map[x, y].connectedToOther = true;
+                if (x < mapSize.x - 1)
+                    if (map[x + 1, y].biomeID != map[x, y].biomeID)
+                        map[x, y].connectedToOther = true;
+                if (y < mapSize.y - 1)
+                    if (map[x, y + 1].biomeID != map[x, y].biomeID)
+                        map[x, y].connectedToOther = true;
+            }
         }
     }
 
@@ -91,42 +220,89 @@ public class HeatmapGen : MonoBehaviour
         Colormap.Apply();
     }
 
-    private void updateMapColors()
+    private void wallOffBiomes()
     {
         for (int x = 0; x < mapSize.x; x++)
         {
             for (int y = 0; y < mapSize.y; y++)
             {
-                map[x, y].color = biomeColors[map[x, y].biomeID];
+                if (x == mapSize.x - 1)
+                    map[x, y].rightWall = true;
+                if (x == 0)
+                    map[x, y].leftWall = true;
+                if (y == mapSize.y - 1)
+                    map[x, y].bottomWall = true;
+                if (y == 0)
+                    map[x, y].topWall = true;
+                if (x > 0)
+                    if (map[x - 1, y].biomeID != map[x, y].biomeID)
+                    {
+                        map[x, y].leftWall = true;
+                    }
+                if (y > 0)
+                    if (map[x, y - 1].biomeID != map[x, y].biomeID)
+                    {
+                        map[x, y].topWall = true;
+                    }
+                if (x < mapSize.x - 1)
+                    if (map[x + 1, y].biomeID != map[x, y].biomeID)
+                    {
+                        map[x, y].rightWall = true;
+                    }
+                if (y < mapSize.y - 1)
+                    if (map[x, y + 1].biomeID != map[x, y].biomeID)
+                    {
+                        map[x, y].bottomWall = true;
+                    }
             }
         }
     }
 
-    public GUIStyle debugStyle;
-    public int textureWidth = 800, textureHeight = 800;
-    public int TextureX = 0, TextureY = 0;
-
-    private void OnGUI()
+    private void updateGrid()
     {
-        GUI.DrawTexture(new Rect(TextureX, TextureY, textureWidth, textureHeight), Colormap);
-        if (getMouseToMapCoord().x > 0 && getMouseToMapCoord().x < mapSize.x && getMouseToMapCoord().y > 0 && getMouseToMapCoord().y < mapSize.y)
+        for (int x = 0; x < debugOverlayW; x++)
         {
-            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y, 200, 200), "Biome ID : " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].biomeID.ToString(), debugStyle);
-            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y + 20, 200, 200), "Connected To Other Biome : " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].connectedToOther.ToString(), debugStyle);
-            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y + 40, 200, 200), "Edge of the world : " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].outerShell.ToString(), debugStyle);
-            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y + 60, 200, 200), "Is Entrance : " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].doorWay.ToString(), debugStyle);
+            for (int y = 0; y < debugOverlayH; y++)
+            {
+                grid.SetPixel(x, y, Color.clear);
+            }
         }
-        GUI.Label(new Rect(0, 0, 1000, 20), "Connecting Biome 1 ID : " + bio1, debugStyle);
-        GUI.Label(new Rect(0, 20, 1000, 20), "Connecting Biome 2 ID : " + bio2, debugStyle);
-    }
+        for (int x = 0; x < mapSize.x; x++)
+        {
+            for (int y = 0; y < mapSize.y; y++)
+            {
+                if (map[x, y].topWall)
+                {
+                    for (int x2 = 0; x2 < debugOverlayW / mapSize.x; x2++)
+                    {
+                        grid.SetPixel((x * (debugOverlayW / mapSize.x)) + x2, debugOverlayH - 1 - (y * (debugOverlayH / mapSize.y)), Color.white);
+                    }
+                }
+                if (map[x, y].bottomWall)
+                {
+                    for (int x2 = 0; x2 < debugOverlayW / mapSize.x; x2++)
+                    {
+                        grid.SetPixel((x * (debugOverlayW / mapSize.x)) + x2, debugOverlayH - ((y + 1) * (debugOverlayH / mapSize.y)), Color.white);
+                    }
+                }
+                if (map[x, y].leftWall)
+                {
+                    for (int y2 = 0; y2 < debugOverlayH / mapSize.y; y2++)
+                    {
+                        grid.SetPixel(x * (debugOverlayW / mapSize.x), debugOverlayH - (y * (debugOverlayH / mapSize.y)) - y2 - 1, Color.white);
+                    }
+                }
+                if (map[x, y].rightWall)
+                {
+                    for (int y2 = 0; y2 < debugOverlayH / mapSize.y; y2++)
+                    {
+                        grid.SetPixel(((x + 1) * (debugOverlayW / mapSize.x)) - 1, debugOverlayH - (y * (debugOverlayH / mapSize.y)) - y2 - 1, Color.white);
+                    }
+                }
+            }
+        }
 
-    public Vector2Int getMouseToMapCoord()
-    {
-        Vector2 mousePos = Input.mousePosition;
-        int XScale = textureWidth / mapSize.x;
-        int YScale = textureHeight / mapSize.y;
-        Vector2Int mousePosInt = new Vector2Int(((int)mousePos.x - TextureX) / XScale, (Screen.height - (int)mousePos.y - TextureY) / YScale);
-        return mousePosInt;
+        grid.Apply();
     }
 
     private void connecteBiome(int currentBiomeID, int connectingBiomeID)
@@ -137,7 +313,7 @@ public class HeatmapGen : MonoBehaviour
         {
             for (int y = 0; y < mapSize.y; y++)
             {
-                if (map[x, y].connectedToOther && map[x, y].biomeID == currentBiomeID)
+                if (map[x, y].connectedToOther && map[x, y].biomeID == currentBiomeID && !areBiomesConnected(currentBiomeID, connectingBiomeID))
                 {
                     if (x > 0)
                         if (map[x - 1, y].biomeID == connectingBiomeID)
@@ -172,86 +348,45 @@ public class HeatmapGen : MonoBehaviour
             int rand = Random.Range(0, potentialSpotsB.Count);
             map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].doorWay = true;
             map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].doorWay = true;
+            if ((int)potentialSpotsF[rand].x > (int)potentialSpotsB[rand].x)
+            {
+                map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].leftWall = false;
+                map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].rightWall = false;
+            }
+            if ((int)potentialSpotsF[rand].x < (int)potentialSpotsB[rand].x)
+            {
+                map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].rightWall = false;
+                map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].leftWall = false;
+            }
+            if ((int)potentialSpotsF[rand].y > (int)potentialSpotsB[rand].y)
+            {
+                map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].topWall = false;
+                map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].bottomWall = false;
+            }
+            if ((int)potentialSpotsF[rand].y < (int)potentialSpotsB[rand].y)
+            {
+                map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].bottomWall = false;
+                map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].topWall = false;
+            }
+            int[] con1 = new int[2];
+            int[] con2 = new int[2];
+            con1[0] = map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].biomeID;
+            con1[1] = map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].biomeID;
+            connections.Add(con1);
+            con2[0] = map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].biomeID;
+            con2[1] = map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].biomeID;
+            connections.Add(con2);
         }
     }
 
-    private void doThing()
+    private bool areBiomesConnected(int currentBiomeID, int connectingBiomeID)
     {
-        BoardCollection[,] tempMap = new BoardCollection[mapSize.x, mapSize.y];
-
-        for (int x = 0; x < mapSize.x; x++)
+        foreach (int[] con in connections)
         {
-            for (int y = 0; y < mapSize.y; y++)
-            {
-                tempMap[x, y] = new BoardCollection();
-                tempMap[x, y].biomeID = map[x, y].biomeID;
-            }
+            if (con[0] == currentBiomeID && con[1] == connectingBiomeID)
+                return true;
         }
-
-        for (int x = 0; x < mapSize.x; x++)
-        {
-            for (int y = 0; y < mapSize.y; y++)
-            {
-                if (tempMap[x, y].biomeID != 0)
-                {
-                    if (x > 0)
-                        if (tempMap[x - 1, y].biomeID == 0)
-                            map[x - 1, y].biomeID = expandChance(tempMap[x, y].biomeID, 1);
-                    if (y > 0)
-                        if (tempMap[x, y - 1].biomeID == 0)
-                            map[x, y - 1].biomeID = expandChance(tempMap[x, y].biomeID, 2);
-                    if (x < mapSize.x - 1)
-                        if (tempMap[x + 1, y].biomeID == 0)
-                            map[x + 1, y].biomeID = expandChance(tempMap[x, y].biomeID, 3);
-                    if (y < mapSize.y - 1)
-                        if (tempMap[x, y + 1].biomeID == 0)
-                            map[x, y + 1].biomeID = expandChance(tempMap[x, y].biomeID, 4);
-                }
-            }
-        }
-    }
-
-    private void traitMarkBiome()
-    {
-        for (int x = 0; x < mapSize.x; x++)
-        {
-            for (int y = 0; y < mapSize.y; y++)
-            {
-                map[x, y].connectedToOther = false;
-                map[x, y].outerShell = false;
-
-                if (x == 0 || x == mapSize.x - 1 || y == 0 || y == mapSize.x - 1)
-                    map[x, y].outerShell = true;
-                if (x > 0)
-                    if (map[x - 1, y].biomeID != map[x, y].biomeID)
-                        map[x, y].connectedToOther = true;
-                if (y > 0)
-                    if (map[x, y - 1].biomeID != map[x, y].biomeID)
-                        map[x, y].connectedToOther = true;
-                if (x < mapSize.x - 1)
-                    if (map[x + 1, y].biomeID != map[x, y].biomeID)
-                        map[x, y].connectedToOther = true;
-                if (y < mapSize.y - 1)
-                    if (map[x, y + 1].biomeID != map[x, y].biomeID)
-                        map[x, y].connectedToOther = true;
-            }
-        }
-    }
-
-    private void applyBiomeColorChange()
-    {
-        for (int x = 0; x < mapSize.x; x++)
-        {
-            for (int y = 0; y < mapSize.y; y++)
-            {
-                if (map[x, y].outerShell)
-                    map[x, y].color = new Color(Mathf.Clamp(map[x, y].color.r - 0.1f, 0, 1), Mathf.Clamp(map[x, y].color.g - 0.1f, 0, 1), Mathf.Clamp(map[x, y].color.b - 0.1f, 0, 1));
-                if (map[x, y].connectedToOther)
-                    map[x, y].color = new Color(Mathf.Clamp(map[x, y].color.r - 0.1f, 0, 1), Mathf.Clamp(map[x, y].color.g - 0.1f, 0, 1), Mathf.Clamp(map[x, y].color.b - 0.1f, 0, 1));
-                if (map[x, y].doorWay)
-                    map[x, y].color = new Color(Mathf.Clamp(map[x, y].color.r + 0.2f, 0, 1), Mathf.Clamp(map[x, y].color.g + 0.2f, 0, 1), Mathf.Clamp(map[x, y].color.b + 0.2f, 0, 1));
-            }
-        }
+        return false;
     }
 
     private int expandChance(int biomeID, int dir)
@@ -287,6 +422,15 @@ public class HeatmapGen : MonoBehaviour
         }
     }
 
+    public Vector2Int getMouseToMapCoord()
+    {
+        Vector2 mousePos = Input.mousePosition;
+        int XScale = textureWidth / mapSize.x;
+        int YScale = textureHeight / mapSize.y;
+        Vector2Int mousePosInt = new Vector2Int(((int)mousePos.x - TextureX) / XScale, (Screen.height - (int)mousePos.y - TextureY) / YScale);
+        return mousePosInt;
+    }
+
     private int cleanSpaceCount()
     {
         int count = 0;
@@ -299,5 +443,28 @@ public class HeatmapGen : MonoBehaviour
             }
         }
         return count;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////
+    ////////////////////Debug/////////////////////////////////////////////////////////
+    private void drawDebug()
+    {
+        if (getMouseToMapCoord().x >= 0 && getMouseToMapCoord().x < mapSize.x && getMouseToMapCoord().y >= 0 && getMouseToMapCoord().y < mapSize.y)
+        {
+            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y, 200, 200), "Biome ID : " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].biomeID.ToString(), debugStyle);
+            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y + 20, 200, 200), "Connected To Other Biome : " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].connectedToOther.ToString(), debugStyle);
+            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y + 40, 200, 200), "Edge of the world : " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].outerShell.ToString(), debugStyle);
+            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y + 60, 200, 200), "Is Entrance : " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].doorWay.ToString(), debugStyle);
+            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y + 80, 200, 200), "Wall top : " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].topWall.ToString(), debugStyle);
+            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y + 100, 200, 200), "Wall bot: " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].bottomWall.ToString(), debugStyle);
+            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y + 120, 200, 200), "Wall left: " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].leftWall.ToString(), debugStyle);
+            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y + 140, 200, 200), "Wall right: " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].rightWall.ToString(), debugStyle);
+        }
+        GUI.Label(new Rect(0, 0, 1000, 20), "Connecting Biome 1 ID : " + bio1, debugStyle);
+        for (int i = 0; i < connections.Count; i++)
+        {
+            int[] con = connections[i];
+            GUI.Label(new Rect(0, 20 * (1 + i), 1000, 20), "Biome :" + con[0] + " connected to biome :" + con[1], debugStyle);
+        }
     }
 }

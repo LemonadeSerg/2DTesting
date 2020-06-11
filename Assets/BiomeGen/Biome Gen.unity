@@ -250,13 +250,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mapSize: {x: 20, y: 20}
-  doUpdate: 1
-  genSpeed: 0.5
-  darkenBiomeWall: 0
-  darkenOuterWall: 0
+  genSpeed: 0
   biomeCount: 12
   biomeColors: []
-  Colormap: {fileID: 0}
+  textureWidth: 800
+  textureHeight: 800
+  debugOverlayW: 200
+  debugOverlayH: 200
+  TextureX: 0
+  TextureY: 0
+  RenderMap: 1
+  RenderGrid: 1
+  RenderDebug: 1
   debugStyle:
     m_Name: 
     m_Normal:
@@ -324,10 +329,6 @@ MonoBehaviour:
     m_FixedHeight: 0
     m_StretchWidth: 1
     m_StretchHeight: 0
-  textureWidth: 800
-  textureHeight: 800
-  TextureX: 0
-  TextureY: 0
 --- !u!1 &1599779484
 GameObject:
   m_ObjectHideFlags: 0
