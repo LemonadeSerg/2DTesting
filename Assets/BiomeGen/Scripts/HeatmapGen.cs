@@ -86,6 +86,16 @@ public class HeatmapGen : MonoBehaviour
         }
     }
 
+    private void fixPockets(int biomeID)
+    {
+        for (int x = 0; x < mapSize.x; x++)
+        {
+            for (int y = 0; y < mapSize.y; y++)
+            {
+            }
+        }
+    }
+
     private void OnGUI()
     {
         if (RenderMap) GUI.DrawTexture(new Rect(TextureX, TextureY, textureWidth, textureHeight), Colormap);
@@ -265,7 +275,7 @@ public class HeatmapGen : MonoBehaviour
     {
         for (int i = 1; i < biomeCount; i++)
         {
-            genBiomeHeatMap(i, 5);
+            genBiomeHeatMap(i, 4);
         }
     }
 
@@ -428,7 +438,7 @@ public class HeatmapGen : MonoBehaviour
 
     private void downThePath(Vector2Int pos)
     {
-        if (pos.y >= 0 && pos.x >= 0 && pos.x < mapSize.x && pos.y < mapSize.y && map[pos.x, pos.y].weight > 1)
+        if (pos.y >= 0 && pos.x >= 0 && pos.x < mapSize.x && pos.y < mapSize.y && map[pos.x, pos.y].weight > 2)
             if (getConnectedWeightedBiome(pos, map[pos.x, pos.y].biomeID, 0) > 0)
             {
                 List<Vector2> freePoss = new List<Vector2>();
@@ -445,7 +455,7 @@ public class HeatmapGen : MonoBehaviour
                     if (map[pos.x, pos.y + 1].biomeID == map[pos.x, pos.y].biomeID && map[pos.x, pos.y + 1].weight == 0)
                         freePoss.Add(new Vector2(0, +1));
                 int Rand = Random.Range(0, freePoss.Count);
-                map[pos.x + (int)freePoss[Rand].x, pos.y + (int)freePoss[Rand].y].weight = Mathf.Clamp(map[pos.x, pos.y].weight + Random.Range(-2, 1), 1, 5);
+                map[pos.x + (int)freePoss[Rand].x, pos.y + (int)freePoss[Rand].y].weight = Mathf.Clamp(map[pos.x, pos.y].weight + Random.Range(-1, 1), 1, 3);
                 downThePath(new Vector2Int(pos.x + (int)freePoss[Rand].x, pos.y + (int)freePoss[Rand].y));
             }
     }

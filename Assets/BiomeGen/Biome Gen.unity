@@ -249,9 +249,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38101aeaf94294d4286ff0f4f302d92e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapSize: {x: 20, y: 20}
+  mapSize: {x: 15, y: 15}
   genSpeed: 0
-  biomeCount: 6
+  biomeCount: 10
   biomeColors: []
   textureWidth: 800
   textureHeight: 800
