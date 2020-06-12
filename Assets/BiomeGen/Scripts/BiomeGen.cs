@@ -29,7 +29,7 @@ public class BiomeGen
     {
         for (int i = 1; i < biomeCount; i++)
         {
-            map[Random.Range(0, map.GetLength(0) - 1), Random.Range(0, map.GetLength(1) - 1)].biomeID = i;
+            map[Random.Range(0, map.GetLength(0) - 1), Random.Range(0, map.GetLength(1) - 1)].BiomeID = i;
         }
     }
 
@@ -42,7 +42,7 @@ public class BiomeGen
             for (int y = 0; y < map.GetLength(1); y++)
             {
                 tempMap[x, y] = new BoardCollection();
-                tempMap[x, y].biomeID = map[x, y].biomeID;
+                tempMap[x, y].BiomeID = map[x, y].BiomeID;
             }
         }
 
@@ -50,20 +50,20 @@ public class BiomeGen
         {
             for (int y = 0; y < map.GetLength(1); y++)
             {
-                if (tempMap[x, y].biomeID != 0)
+                if (tempMap[x, y].BiomeID != 0)
                 {
                     if (x > 0)
-                        if (tempMap[x - 1, y].biomeID == 0)
-                            map[x - 1, y].biomeID = expandChance(tempMap[x, y].biomeID, 1);
+                        if (tempMap[x - 1, y].BiomeID == 0)
+                            map[x - 1, y].BiomeID = expandChance(tempMap[x, y].BiomeID, 1);
                     if (y > 0)
-                        if (tempMap[x, y - 1].biomeID == 0)
-                            map[x, y - 1].biomeID = expandChance(tempMap[x, y].biomeID, 2);
+                        if (tempMap[x, y - 1].BiomeID == 0)
+                            map[x, y - 1].BiomeID = expandChance(tempMap[x, y].BiomeID, 2);
                     if (x < map.GetLength(1) - 1)
-                        if (tempMap[x + 1, y].biomeID == 0)
-                            map[x + 1, y].biomeID = expandChance(tempMap[x, y].biomeID, 3);
+                        if (tempMap[x + 1, y].BiomeID == 0)
+                            map[x + 1, y].BiomeID = expandChance(tempMap[x, y].BiomeID, 3);
                     if (y < map.GetLength(1) - 1)
-                        if (tempMap[x, y + 1].biomeID == 0)
-                            map[x, y + 1].biomeID = expandChance(tempMap[x, y].biomeID, 4);
+                        if (tempMap[x, y + 1].BiomeID == 0)
+                            map[x, y + 1].BiomeID = expandChance(tempMap[x, y].BiomeID, 4);
                 }
             }
         }
@@ -75,7 +75,10 @@ public class BiomeGen
         {
             for (int y = 0; y < map.GetLength(1); y++)
             {
-                map[x, y].color = biomeColors[map[x, y].biomeID];
+                if (map[x, y].Col != biomeColors[map[x, y].BiomeID])
+                {
+                    map[x, y].Col = biomeColors[map[x, y].BiomeID];
+                }
             }
         }
     }
@@ -120,7 +123,7 @@ public class BiomeGen
         {
             for (int y = 0; y < map.GetLength(1); y++)
             {
-                if (map[x, y].biomeID == 0)
+                if (map[x, y].BiomeID == 0)
                     count++;
             }
         }

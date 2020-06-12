@@ -19,28 +19,28 @@ public class BiomeActions
         {
             for (int y = 0; y < map.GetLength(1); y++)
             {
-                if (map[x, y].connectedToOther && map[x, y].biomeID == currentBiomeID && !areBiomesConnected(currentBiomeID, connectingBiomeID))
+                if (map[x, y].ConnectedToOther && map[x, y].BiomeID == currentBiomeID && !areBiomesConnected(currentBiomeID, connectingBiomeID))
                 {
                     if (x > 0)
-                        if (map[x - 1, y].biomeID == connectingBiomeID)
+                        if (map[x - 1, y].BiomeID == connectingBiomeID)
                         {
                             potentialSpotsF.Add(new Vector2(x, y));
                             potentialSpotsB.Add(new Vector2(x - 1, y));
                         }
                     if (y > 0)
-                        if (map[x, y - 1].biomeID == connectingBiomeID)
+                        if (map[x, y - 1].BiomeID == connectingBiomeID)
                         {
                             potentialSpotsF.Add(new Vector2(x, y));
                             potentialSpotsB.Add(new Vector2(x, y - 1));
                         }
                     if (x < map.GetLength(0) - 1)
-                        if (map[x + 1, y].biomeID == connectingBiomeID)
+                        if (map[x + 1, y].BiomeID == connectingBiomeID)
                         {
                             potentialSpotsF.Add(new Vector2(x, y));
                             potentialSpotsB.Add(new Vector2(x + 1, y));
                         }
                     if (y < map.GetLength(1) - 1)
-                        if (map[x, y + 1].biomeID == connectingBiomeID)
+                        if (map[x, y + 1].BiomeID == connectingBiomeID)
                         {
                             potentialSpotsF.Add(new Vector2(x, y));
                             potentialSpotsB.Add(new Vector2(x, y + 1));
@@ -52,35 +52,36 @@ public class BiomeActions
         if (potentialSpotsB.Count > 0)
         {
             int rand = Random.Range(0, potentialSpotsB.Count);
-            map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].doorWay = true;
-            map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].doorWay = true;
+            map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].DoorWay = true;
+            map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].DoorWay = true;
             if ((int)potentialSpotsF[rand].x > (int)potentialSpotsB[rand].x)
             {
-                map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].leftWall = false;
-                map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].rightWall = false;
+                map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].LeftWall = false;
+                map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].RightWall = false;
             }
             if ((int)potentialSpotsF[rand].x < (int)potentialSpotsB[rand].x)
             {
-                map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].rightWall = false;
-                map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].leftWall = false;
+                map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].RightWall = false;
+                map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].LeftWall = false;
             }
             if ((int)potentialSpotsF[rand].y > (int)potentialSpotsB[rand].y)
             {
-                map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].topWall = false;
-                map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].bottomWall = false;
+                map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].TopWall = false;
+                map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].BottomWall = false;
             }
             if ((int)potentialSpotsF[rand].y < (int)potentialSpotsB[rand].y)
             {
-                map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].bottomWall = false;
-                map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].topWall = false;
+                map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].BottomWall = false;
+                map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].TopWall = false;
             }
             int[] con1 = new int[2];
             int[] con2 = new int[2];
-            con1[0] = map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].biomeID;
-            con1[1] = map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].biomeID;
+            con1[0] = map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].BiomeID;
+            con1[1] = map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].BiomeID;
+
             connections.Add(con1);
-            con2[0] = map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].biomeID;
-            con2[1] = map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].biomeID;
+            con2[0] = map[(int)potentialSpotsB[rand].x, (int)potentialSpotsB[rand].y].BiomeID;
+            con2[1] = map[(int)potentialSpotsF[rand].x, (int)potentialSpotsF[rand].y].BiomeID;
             connections.Add(con2);
         }
     }

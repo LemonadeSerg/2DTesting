@@ -5,23 +5,167 @@ using UnityEngine;
 [System.Serializable]
 public class BoardCollection
 {
-    public int biomeID;
-    public Color color;
-    public bool outerShell;
-    public bool connectedToOther;
-    public bool doorWay;
-    public bool topWall;
-    public bool bottomWall;
-    public bool rightWall;
-    public bool leftWall;
-    public int weight;
+    private int biomeID;
 
-    public void Init()
+    public int BiomeID
     {
+        get { return biomeID; }
+        set
+        {
+            updateBoardTexture();
+            biomeID = value;
+        }
+    }
+
+    private Color color;
+
+    public Color Col
+    {
+        get { return color; }
+        set
+        {
+            color = value;
+            updateBoardTexture();
+        }
+    }
+
+    private bool outerShell;
+
+    public bool OuterShell
+    {
+        get { return outerShell; }
+        set
+        {
+            outerShell = value;
+            updateBoardTexture();
+        }
+    }
+
+    private bool connectedToOther;
+
+    public bool ConnectedToOther
+    {
+        get { return connectedToOther; }
+        set
+        {
+            connectedToOther = value;
+            updateBoardTexture();
+        }
+    }
+
+    private bool doorWay;
+
+    public bool DoorWay
+    {
+        get { return doorWay; }
+        set
+        {
+            doorWay = value;
+            updateBoardTexture();
+        }
+    }
+
+    private bool topWall;
+
+    public bool TopWall
+    {
+        get { return topWall; }
+        set
+        {
+            topWall = value;
+            updateBoardTexture();
+        }
+    }
+
+    private bool bottomWall;
+
+    public bool BottomWall
+    {
+        get { return bottomWall; }
+
+        set
+        {
+            bottomWall = value;
+            updateBoardTexture();
+        }
+    }
+
+    private bool rightWall;
+
+    public bool RightWall
+    {
+        get { return rightWall; }
+        set
+        {
+            rightWall = value;
+            updateBoardTexture();
+        }
+    }
+
+    private bool leftWall;
+
+    public bool LeftWall
+    {
+        get { return leftWall; }
+        set
+        {
+            leftWall = value;
+            updateBoardTexture();
+        }
+    }
+
+    public Texture2D tex;
+
+    public void Init(int width, int height)
+    {
+        tex = new Texture2D(width, height);
         biomeID = 0;
         color = Color.white;
         outerShell = false;
         connectedToOther = false;
+    }
+
+    public void updateBoardTexture()
+    {
+        if (tex != null)
+        {
+            for (int x = 0; x < tex.width; x++)
+            {
+                for (int y = 0; y < tex.height; y++)
+                {
+                    tex.SetPixel(x, y, color);
+                }
+            }
+            if (bottomWall)
+            {
+                for (int x = 0; x < tex.width; x++)
+                {
+                    tex.SetPixel(x, 0, Color.white);
+                }
+            }
+            if (topWall)
+            {
+                for (int x = 0; x < tex.width; x++)
+                {
+                    tex.SetPixel(x, tex.height - 1, Color.white);
+                }
+            }
+            if (leftWall)
+            {
+                for (int y = 0; y < tex.height; y++)
+                {
+                    tex.SetPixel(0, y, Color.white);
+                }
+            }
+            if (rightWall)
+            {
+                for (int y = 0; y < tex.height; y++)
+                {
+                    tex.SetPixel(tex.width - 1, y, Color.white);
+                }
+            }
+            tex.Apply();
+        }
     }
 
     public int getWallCount()

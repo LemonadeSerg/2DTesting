@@ -10,23 +10,23 @@ public class BoardTraitGen
         {
             for (int y = 0; y < map.GetLength(1); y++)
             {
-                map[x, y].connectedToOther = false;
-                map[x, y].outerShell = false;
+                map[x, y].ConnectedToOther = false;
+                map[x, y].OuterShell = false;
 
                 if (x == 0 || x == map.GetLength(0) - 1 || y == 0 || y == map.GetLength(1) - 1)
-                    map[x, y].outerShell = true;
+                    map[x, y].OuterShell = true;
                 if (x > 0)
-                    if (map[x - 1, y].biomeID != map[x, y].biomeID)
-                        map[x, y].connectedToOther = true;
+                    if (map[x - 1, y].BiomeID != map[x, y].BiomeID)
+                        map[x, y].ConnectedToOther = true;
                 if (y > 0)
-                    if (map[x, y - 1].biomeID != map[x, y].biomeID)
-                        map[x, y].connectedToOther = true;
+                    if (map[x, y - 1].BiomeID != map[x, y].BiomeID)
+                        map[x, y].ConnectedToOther = true;
                 if (x < map.GetLength(0) - 1)
-                    if (map[x + 1, y].biomeID != map[x, y].biomeID)
-                        map[x, y].connectedToOther = true;
+                    if (map[x + 1, y].BiomeID != map[x, y].BiomeID)
+                        map[x, y].ConnectedToOther = true;
                 if (y < map.GetLength(1) - 1)
-                    if (map[x, y + 1].biomeID != map[x, y].biomeID)
-                        map[x, y].connectedToOther = true;
+                    if (map[x, y + 1].BiomeID != map[x, y].BiomeID)
+                        map[x, y].ConnectedToOther = true;
             }
         }
     }
