@@ -18,7 +18,7 @@ public class HeatmapGen
             generateHeatmapVein(biome, maxWeight, map);
     }
 
-    private void generateHeatmapVein(int biomeID, int weight, BoardCollection[,] map)
+    public void generateHeatmapVein(int biomeID, int weight, BoardCollection[,] map)
     {
         List<Vector2> freePoss = new List<Vector2>();
         for (int x = 0; x < map.GetLength(0); x++)
@@ -64,7 +64,7 @@ public class HeatmapGen
             }
     }
 
-    private int freeSpaceFromBiome(int biomeID, BoardCollection[,] map)
+    public int freeSpaceFromBiome(int biomeID, BoardCollection[,] map)
     {
         int spaces = 0;
         for (int x = 0; x < map.GetLength(0); x++)

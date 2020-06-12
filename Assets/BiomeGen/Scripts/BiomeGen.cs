@@ -17,6 +17,14 @@ public class BiomeGen
         }
     }
 
+    public void growBiomeAll(BoardCollection[,] map)
+    {
+        while (cleanSpaceCount(map) > 0)
+        {
+            growBiome(map);
+        }
+    }
+
     public void placeBiomeStarts(BoardCollection[,] map)
     {
         for (int i = 1; i < biomeCount; i++)

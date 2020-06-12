@@ -62,7 +62,7 @@ public class WallGeneration
             genBoardWall(biomeID, map);
     }
 
-    private void setWalls(Vector2Int pos, BoardCollection[,] map)
+    public void setWalls(Vector2Int pos, BoardCollection[,] map)
     {
         List<Vector2> freePos = new List<Vector2>();
 
@@ -105,7 +105,7 @@ public class WallGeneration
         }
     }
 
-    private Vector2Int getSpaceWithFreeWalls(int biomeID, int weight, BoardCollection[,] map)
+    public Vector2Int getSpaceWithFreeWalls(int biomeID, int weight, BoardCollection[,] map)
     {
         Vector2Int vec2 = new Vector2Int();
         List<Vector2> freePos = new List<Vector2>();

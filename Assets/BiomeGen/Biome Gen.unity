@@ -251,6 +251,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapSize: {x: 50, y: 50}
   DataInitalised: 0
+  showGeneration: 1
   textureWidth: 800
   textureHeight: 800
   TextureX: 0
@@ -325,7 +326,9 @@ MonoBehaviour:
     m_FixedHeight: 0
     m_StretchWidth: 1
     m_StretchHeight: 0
-  biomeCount: 6
+  biomeCount: 20
+  cycleSize: 10
+  wallWithHeatmap: 1
 --- !u!1 &1599779484
 GameObject:
   m_ObjectHideFlags: 0
