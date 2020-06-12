@@ -132,8 +132,8 @@ GameObject:
   - component: {fileID: 105292704}
   - component: {fileID: 105292703}
   - component: {fileID: 105292702}
-  - component: {fileID: 105292706}
   - component: {fileID: 105292705}
+  - component: {fileID: 105292706}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -246,17 +246,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 105292701}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 38101aeaf94294d4286ff0f4f302d92e, type: 3}
+  m_Script: {fileID: 11500000, guid: 40cf2ab76d4bf4c49b461ef720e762ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  mapSize: {x: 15, y: 15}
-  genSpeed: 0
-  biomeCount: 10
-  biomeColors: []
+  mapSize: {x: 50, y: 50}
+  DataInitalised: 0
   textureWidth: 800
   textureHeight: 800
-  debugOverlayW: 200
-  debugOverlayH: 200
   TextureX: 0
   TextureY: 0
   RenderMap: 1
@@ -329,6 +325,7 @@ MonoBehaviour:
     m_FixedHeight: 0
     m_StretchWidth: 1
     m_StretchHeight: 0
+  biomeCount: 6
 --- !u!1 &1599779484
 GameObject:
   m_ObjectHideFlags: 0
