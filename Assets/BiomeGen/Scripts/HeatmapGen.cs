@@ -40,6 +40,22 @@ public class HeatmapGen
         }
     }
 
+    public void applyReduction(BoardCollection[,] map)
+    {
+        for (int x = 0; x < map.GetLength(0); x++)
+        {
+            for (int y = 0; y < map.GetLength(1); y++)
+            {
+                if (map[x, y].weight == 4)
+                    if (Random.Range(0, 5) == 1)
+                        map[x, y].weight = 2;
+                if (map[x, y].weight == 3)
+                    if (Random.Range(0, 3) == 1)
+                        map[x, y].weight = 2;
+            }
+        }
+    }
+
     private void downThePath(Vector2Int pos, BoardCollection[,] map)
     {
         if (pos.y >= 0 && pos.x >= 0 && pos.x < map.GetLength(0) && pos.y < map.GetLength(1) && map[pos.x, pos.y].weight > 2)
@@ -59,7 +75,7 @@ public class HeatmapGen
                     if (map[pos.x, pos.y + 1].biomeID == map[pos.x, pos.y].biomeID && map[pos.x, pos.y + 1].weight == 0)
                         freePoss.Add(new Vector2(0, +1));
                 int Rand = Random.Range(0, freePoss.Count);
-                map[pos.x + (int)freePoss[Rand].x, pos.y + (int)freePoss[Rand].y].weight = Mathf.Clamp(map[pos.x, pos.y].weight + Random.Range(-1, 1), 1, 3);
+                map[pos.x + (int)freePoss[Rand].x, pos.y + (int)freePoss[Rand].y].weight = Mathf.Clamp(map[pos.x, pos.y].weight + map[pos.x, pos.y].heatGrowthChange(), 3, 4);
                 downThePath(new Vector2Int(pos.x + (int)freePoss[Rand].x, pos.y + (int)freePoss[Rand].y), map);
             }
     }

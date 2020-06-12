@@ -10,6 +10,9 @@ public class WorldGenerationManager : MonoBehaviour
     public VisualGen visGen;
     public BoardTraitGen traitGen;
     public BiomeActions biomeActions;
+    public NewWallGeneration newWallGen;
+
+    public int seed;
 
     public Vector2Int mapSize = new Vector2Int(100, 100);
     public BoardCollection[,] map;
@@ -30,9 +33,20 @@ public class WorldGenerationManager : MonoBehaviour
 
     private int bio1;
 
+    private bool biomeGrown = false;
+    private bool heatmapGenerated = false;
+    private bool traitsMarked = false;
+    private bool ouWallsGenerated = false;
+    private bool inWallsGenerated = false;
+    public int cycleSize = 10;
+    public float lastTime;
+
+    public float wallingSpeed = 0.5f;
+
     // Start is called before the first frame update
     private void Start()
     {
+        Random.InitState(seed);
         textureWidth = Screen.height;
         textureHeight = Screen.height;
         biomeGen = new BiomeGen();
@@ -41,22 +55,26 @@ public class WorldGenerationManager : MonoBehaviour
         wallGen = new WallGeneration();
         traitGen = new BoardTraitGen();
         biomeActions = new BiomeActions();
+        newWallGen = new NewWallGeneration();
+        biomeGrown = false;
+        heatmapGenerated = false;
+        traitsMarked = false;
+        ouWallsGenerated = false;
+        inWallsGenerated = false;
 
         init();
     }
 
-    private bool biomeGrown = false;
-    private bool heatmapGenerated = false;
-    private bool traitsMarked = false;
-    private bool ouWallsGenerated = false;
-    private bool inWallsGenerated = false;
-    private bool wallsAndHeatGenerated = false;
-    public int cycleSize = 10;
-    public bool wallWithHeatmap = false;
+    private void restart()
+    {
+        Start();
+    }
 
     // Update is called once per frame
     private void Update()
     {
+        if (visGen == null)
+            Start();
         if (showGeneration && DataInitalised)
         {
             for (int cycle = 0; cycle < cycleSize; cycle++)
@@ -68,7 +86,7 @@ public class WorldGenerationManager : MonoBehaviour
                     if (biomeGen.cleanSpaceCount(map) == 0)
                         biomeGrown = true;
                 }
-                else if (!heatmapGenerated && !wallWithHeatmap)
+                /*else if (!heatmapGenerated)
                 {
                     heatmapGenerated = true;
                     for (int i = 1; i < biomeCount; i++)
@@ -76,43 +94,12 @@ public class WorldGenerationManager : MonoBehaviour
                         if (heatGen.freeSpaceFromBiome(i, map) > 0)
                         {
                             heatmapGenerated = false;
-                            heatGen.generateHeatmapVein(i, 4, map);
+                            heatGen.generateHeatmapVein(i, 3, map);
                         }
                     }
-                }
-                else if (!wallsAndHeatGenerated && wallWithHeatmap)
-                {
-                    heatmapGenerated = true;
-                    for (int i = 1; i < biomeCount; i++)
-                    {
-                        if (heatGen.freeSpaceFromBiome(i, map) > 0)
-                        {
-                            heatmapGenerated = false;
-                            heatGen.generateHeatmapVein(i, 4, map);
-                        }
-                    }
-                    inWallsGenerated = true;
-                    for (int i = 0; i < biomeCount; i++)
-                    {
-                        if (wallGen.getSpaceWithFreeWallsCount(i, 3, map) > 0)
-                        {
-                            wallGen.setWalls(wallGen.getSpaceWithFreeWalls(i, 3, map), map);
-                            inWallsGenerated = false;
-                        }
-                        else if (wallGen.getSpaceWithFreeWallsCount(i, 2, map) > 0)
-                        {
-                            wallGen.setWalls(wallGen.getSpaceWithFreeWalls(i, 2, map), map);
-                            inWallsGenerated = false;
-                        }
-                        else if (wallGen.getSpaceWithFreeWallsCount(i, 1, map) > 0)
-                        {
-                            wallGen.setWalls(wallGen.getSpaceWithFreeWalls(i, 1, map), map);
-                            inWallsGenerated = false;
-                        }
-                    }
-                    if (heatmapGenerated && inWallsGenerated)
-                        wallsAndHeatGenerated = true;
-                }
+                    if (heatmapGenerated)
+                        heatGen.applyReduction(map);
+                }*/
                 else if (!traitsMarked)
                 {
                     traitGen.traitMarkBiome(map);
@@ -123,29 +110,45 @@ public class WorldGenerationManager : MonoBehaviour
                     wallGen.wallOffBiomes(map);
                     ouWallsGenerated = true;
                 }
-                else if (!inWallsGenerated && wallWithHeatmap)
+                else if (!inWallsGenerated)
+                {
+                    newWallGen.addFloatingWall(map, 100);
+                    if (newWallGen.noMore)
+                        inWallsGenerated = true;
+                }
+                else
+                {
+                    if (Time.time > lastTime + wallingSpeed)
+                    {
+                        newWallGen.buildWall(map, 1);
+                        lastTime = Time.time;
+                    }
+                }
+                /*else if (!inWallsGenerated)
+
                 {
                     inWallsGenerated = true;
                     for (int i = 0; i < biomeCount; i++)
                     {
-                        if (wallGen.getSpaceWithFreeWallsCount(i, 3, map) > 0)
-                        {
-                            wallGen.setWalls(wallGen.getSpaceWithFreeWalls(i, 3, map), map);
-                            inWallsGenerated = false;
-                        }
-                        else if (wallGen.getSpaceWithFreeWallsCount(i, 2, map) > 0)
-                        {
-                            wallGen.setWalls(wallGen.getSpaceWithFreeWalls(i, 2, map), map);
-                            inWallsGenerated = false;
-                        }
-                        else if (wallGen.getSpaceWithFreeWallsCount(i, 1, map) > 0)
+                        if (wallGen.getSpaceWithFreeWallsCount(i, 1, map) > 0)
                         {
                             wallGen.setWalls(wallGen.getSpaceWithFreeWalls(i, 1, map), map);
                             inWallsGenerated = false;
                         }
+                        if (wallGen.getSpaceWithFreeWallsCount(i, 2, map) > 0)
+                        {
+                            wallGen.setWalls(wallGen.getSpaceWithFreeWalls(i, 2, map), map);
+                            inWallsGenerated = false;
+                        }
+                        if (wallGen.getSpaceWithFreeWallsCount(i, 3, map) > 0)
+                        {  s
+                            wallGen.setWalls(wallGen.getSpaceWithFreeWalls(i, 3, map), map);
+                            inWallsGenerated = false;
+                        }
                     }
-                }
+                }*/
             }
+
             visGen.updateGraphics(map);
         }
     }
@@ -219,7 +222,7 @@ public class WorldGenerationManager : MonoBehaviour
         {
             for (int y = 0; y < mapSize.y; y++)
             {
-                GUI.Label(new Rect((int)((float)x * (float)textureWidth / (float)(mapSize.x)), (int)((float)y * (float)textureHeight / (float)(mapSize.y)), (textureWidth / mapSize.x), (textureWidth / mapSize.y)), map[x, y].weight.ToString(), debugStyle);
+                //GUI.Label(new Rect((int)((float)x * (float)textureWidth / (float)(mapSize.x)), (int)((float)y * (float)textureHeight / (float)(mapSize.y)), (textureWidth / mapSize.x), (textureWidth / mapSize.y)), map[x, y].weight.ToString(), debugStyle);
             }
         }
     }

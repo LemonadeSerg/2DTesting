@@ -71,6 +71,7 @@
     <Compile Include="Assets\BiomeGen\Scripts\BoardCollection.cs" />
     <Compile Include="Assets\BiomeGen\Scripts\BoardTraitGen.cs" />
     <Compile Include="Assets\BiomeGen\Scripts\HeatmapGen.cs" />
+    <Compile Include="Assets\BiomeGen\Scripts\NewWallGeneration.cs" />
     <Compile Include="Assets\BiomeGen\Scripts\VisualGen.cs" />
     <Compile Include="Assets\BiomeGen\Scripts\WallGeneration.cs" />
     <Compile Include="Assets\BiomeGen\Scripts\WorldGenerationManager.cs" />
