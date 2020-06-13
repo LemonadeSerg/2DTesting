@@ -47,6 +47,7 @@ public class WorldGenerationManager : MonoBehaviour
     private void Start()
     {
         Random.InitState(seed);
+
         textureWidth = Screen.height;
         textureHeight = Screen.height;
         biomeGen = new BiomeGen();
@@ -57,6 +58,7 @@ public class WorldGenerationManager : MonoBehaviour
         heatmapGenerated = false;
         traitsMarked = false;
         ouWallsGenerated = false;
+
         inWallsGenerated = false;
 
         init();
@@ -83,11 +85,6 @@ public class WorldGenerationManager : MonoBehaviour
                     if (biomeGen.cleanSpaceCount(map) == 0)
                         biomeGrown = true;
                 }
-                else if (!traitsMarked)
-                {
-                    traitGen.traitMarkBiome(map);
-                    traitsMarked = true;
-                }
                 else if (!ouWallsGenerated)
                 {
                     newWallGen.wallOffBiomes(map);
@@ -104,8 +101,12 @@ public class WorldGenerationManager : MonoBehaviour
                 }
                 else if (!newWallGen.wallGened)
                 {
-                    print("wall generating");
-                    newWallGen.buildWall(map, 100);
+                    newWallGen.buildWall(map, 60);
+                }
+                else if (!traitsMarked)
+                {
+                    traitGen.traitMarkBiome(map);
+                    traitsMarked = true;
                 }
             }
         }
@@ -141,7 +142,7 @@ public class WorldGenerationManager : MonoBehaviour
                 map[x, y].Init(textureWidth / mapSize.x, textureHeight / mapSize.y);
             }
         }
-        biomeGen.init(biomeCount);
+        biomeGen.init(biomeCount + 1);
         biomeActions.init();
         biomeGen.placeBiomeStarts(map);
         DataInitalised = true;
@@ -160,18 +161,27 @@ public class WorldGenerationManager : MonoBehaviour
     ////////////////////Debug/////////////////////////////////////////////////////////
     private void drawDebug()
     {
+        List<string> debugInfo = new List<string>();
         if (getMouseToMapCoord().x >= 0 && getMouseToMapCoord().x < mapSize.x && getMouseToMapCoord().y >= 0 && getMouseToMapCoord().y < mapSize.y)
         {
-            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y - 40, 200, 200), "Mouse Rel Pos :" + Input.mousePosition.ToString(), debugStyle);
-            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y - 20, 200, 200), "Mouse Rel Pos :" + getMouseToMapCoord().ToString(), debugStyle);
-            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y, 200, 200), "Biome ID : " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].BiomeID.ToString(), debugStyle);
-            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y + 20, 200, 200), "Connected To Other Biome : " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].ConnectedToOther.ToString(), debugStyle);
-            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y + 40, 200, 200), "Edge of the world : " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].OuterShell.ToString(), debugStyle);
-            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y + 60, 200, 200), "Is Entrance : " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].DoorWay.ToString(), debugStyle);
-            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y + 80, 200, 200), "Wall top : " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].TopWall.ToString(), debugStyle);
-            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y + 100, 200, 200), "Wall bot: " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].BottomWall.ToString(), debugStyle);
-            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y + 120, 200, 200), "Wall left: " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].LeftWall.ToString(), debugStyle);
-            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y + 140, 200, 200), "Wall right: " + map[getMouseToMapCoord().x, getMouseToMapCoord().y].RightWall.ToString(), debugStyle);
+            BoardCollection boardHoverover = map[getMouseToMapCoord().x, getMouseToMapCoord().y];
+            debugInfo.Add("Mouse Rel Pos :" + Input.mousePosition.ToString());
+            debugInfo.Add("Mouse Rel Pos :" + getMouseToMapCoord().ToString());
+            debugInfo.Add("Biome ID : " + boardHoverover.BiomeID.ToString());
+            debugInfo.Add("Connected To Other Biome : " + boardHoverover.ConnectedToOther.ToString());
+            debugInfo.Add("Edge of the world : " + boardHoverover.OuterShell.ToString());
+            debugInfo.Add("Is Entrance : " + boardHoverover.DoorWay.ToString());
+            debugInfo.Add("Wall top : " + boardHoverover.TopWall.ToString());
+            debugInfo.Add("Wall bot: " + boardHoverover.BottomWall.ToString());
+            debugInfo.Add("Wall left: " + boardHoverover.LeftWall.ToString());
+            debugInfo.Add("Wall right: " + boardHoverover.RightWall.ToString());
+            debugInfo.Add("Type: " + boardHoverover.RType.ToString());
+            debugInfo.Add("Orientation: " + boardHoverover.OrType.ToString());
+            debugInfo.Add("Walls : " + boardHoverover.getWallCount().ToString());
+        }
+        for (int i = 0; i < debugInfo.Count; i++)
+        {
+            GUI.Label(new Rect((int)Input.mousePosition.x, Screen.height - (int)Input.mousePosition.y + 20 * i, 200, 200), "Mouse Rel Pos :" + debugInfo[i], debugStyle);
         }
         GUI.Label(new Rect(0, 0, 1000, 20), "Connecting Biome 1 ID : " + bio1, debugStyle);
         for (int i = 0; i < biomeActions.connections.Count; i++)

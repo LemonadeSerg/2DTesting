@@ -249,8 +249,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40cf2ab76d4bf4c49b461ef720e762ee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  seed: 1996
-  mapSize: {x: 300, y: 300}
+  seed: 19964
+  mapSize: {x: 10, y: 10}
   DataInitalised: 0
   showGeneration: 1
   textureWidth: 800
@@ -328,7 +328,7 @@ MonoBehaviour:
     m_FixedHeight: 0
     m_StretchWidth: 1
     m_StretchHeight: 0
-  biomeCount: 50
+  biomeCount: 4
   cycleSize: 1
   lastTime: 0
   wallingSpeed: 0

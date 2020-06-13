@@ -29,7 +29,10 @@ public class BiomeGen
     {
         for (int i = 1; i < biomeCount; i++)
         {
-            map[Random.Range(0, map.GetLength(0) - 1), Random.Range(0, map.GetLength(1) - 1)].BiomeID = i;
+            int Rand = Random.Range(0, map.GetLength(0) - 1);
+            int Rand2 = Random.Range(0, map.GetLength(1) - 1);
+            map[Rand, Rand2].BiomeID = i;
+            map[Rand, Rand2].RType = BoardCollection.RoomType.Boss;
         }
     }
 
@@ -43,6 +46,7 @@ public class BiomeGen
             {
                 tempMap[x, y] = new BoardCollection();
                 tempMap[x, y].BiomeID = map[x, y].BiomeID;
+                tempMap[x, y].RType = BoardCollection.RoomType.Normal;
             }
         }
 

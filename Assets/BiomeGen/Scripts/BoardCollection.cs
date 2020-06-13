@@ -114,7 +114,60 @@ public class BoardCollection
         }
     }
 
+    public RoomType RType
+    {
+        get { return rType; }
+        set
+        {
+            rType = value;
+            updateBoardTexture();
+        }
+    }
+
+    private RoomType rType;
+
+    public OrientationType OrType
+    {
+        get { return orType; }
+        set
+        {
+            orType = value;
+            updateBoardTexture();
+        }
+    }
+
+    private OrientationType orType;
+
     public Texture2D tex;
+
+    public enum RoomType
+    {
+        Normal,
+        Boss,
+        Spawn,
+        Battle,
+        Village,
+        Puzzle,
+    }
+
+    public enum OrientationType
+    {
+        Clear,
+        ClearT,
+        ClearR,
+        ClearB,
+        ClearL,
+        ClearTR,
+        ClearTL,
+        ClearTB,
+        ClearRB,
+        ClearRL,
+        ClearBL,
+        ClearTRB,
+        ClearTRL,
+        ClearRBL,
+        ClearBLT,
+    }
 
     public void Init(int width, int height)
     {
@@ -164,6 +217,48 @@ public class BoardCollection
                     tex.SetPixel(tex.width - 1, y, Color.white);
                 }
             }
+            if (rType == RoomType.Boss)
+            {
+                for (int x = 0; x < tex.width; x++)
+                {
+                    for (int y = 0; y < tex.height; y++)
+                    {
+                        if (x == y)
+                        {
+                            tex.SetPixel(x, y, Color.red);
+                            tex.SetPixel(x, tex.height - y, Color.red);
+                        }
+                    }
+                }
+            }
+            if (rType == RoomType.Village)
+            {
+                for (int x = 8; x < tex.width - 8; x++)
+                {
+                    for (int y = 8; y < tex.height - 8; y++)
+                    {
+                        if (x == y && y < tex.height / 2)
+                        {
+                            tex.SetPixel(x, y, Color.yellow);
+                            tex.SetPixel(x, tex.height - y, Color.yellow);
+                        }
+                    }
+                }
+            }
+            if (rType == RoomType.Normal)
+            {
+                for (int x = 8; x < tex.width - 8; x++)
+                {
+                    for (int y = 8; y < tex.height - 8; y++)
+                    {
+                        if (x == y || x == 8 || x == tex.width - 9)
+                        {
+                            tex.SetPixel(x, tex.height - y, Color.black);
+                        }
+                    }
+                }
+            }
+
             tex.Apply();
         }
     }
@@ -180,18 +275,6 @@ public class BoardCollection
         if (leftWall)
             count++;
         return count;
-    }
-
-    public int heatGrowthChange()
-    {
-        int Rand = UnityEngine.Random.Range(1, 4);
-        if (Rand == 1)
-            return 1;
-        if (Rand == 2)
-            return -1;
-        if (Rand == 3)
-            return -2;
-        return Rand;
     }
 
     public bool getWallRightChance()

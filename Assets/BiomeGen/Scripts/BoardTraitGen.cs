@@ -10,23 +10,86 @@ public class BoardTraitGen
         {
             for (int y = 0; y < map.GetLength(1); y++)
             {
-                map[x, y].ConnectedToOther = false;
-                map[x, y].OuterShell = false;
-
-                if (x == 0 || x == map.GetLength(0) - 1 || y == 0 || y == map.GetLength(1) - 1)
-                    map[x, y].OuterShell = true;
-                if (x > 0)
-                    if (map[x - 1, y].BiomeID != map[x, y].BiomeID)
-                        map[x, y].ConnectedToOther = true;
-                if (y > 0)
-                    if (map[x, y - 1].BiomeID != map[x, y].BiomeID)
-                        map[x, y].ConnectedToOther = true;
-                if (x < map.GetLength(0) - 1)
-                    if (map[x + 1, y].BiomeID != map[x, y].BiomeID)
-                        map[x, y].ConnectedToOther = true;
-                if (y < map.GetLength(1) - 1)
-                    if (map[x, y + 1].BiomeID != map[x, y].BiomeID)
-                        map[x, y].ConnectedToOther = true;
+                if (map[x, y].getWallCount() == 3)
+                {
+                    if (!map[x, y].TopWall)
+                    {
+                        map[x, y].OrType = BoardCollection.OrientationType.ClearT;
+                    }
+                    if (!map[x, y].BottomWall)
+                    {
+                        map[x, y].OrType = BoardCollection.OrientationType.ClearB;
+                    }
+                    if (!map[x, y].LeftWall)
+                    {
+                        map[x, y].OrType = BoardCollection.OrientationType.ClearL;
+                    }
+                    if (!map[x, y].RightWall)
+                    {
+                        map[x, y].OrType = BoardCollection.OrientationType.ClearR;
+                    }
+                }
+                else
+                if (map[x, y].getWallCount() == 2)
+                {
+                    if (!map[x, y].TopWall)
+                    {
+                        if (!map[x, y].BottomWall)
+                        {
+                            map[x, y].OrType = BoardCollection.OrientationType.ClearTB;
+                        }
+                        if (!map[x, y].LeftWall)
+                        {
+                            map[x, y].OrType = BoardCollection.OrientationType.ClearTL;
+                        }
+                        if (!map[x, y].RightWall)
+                        {
+                            map[x, y].OrType = BoardCollection.OrientationType.ClearTR;
+                        }
+                    }
+                    if (!map[x, y].RightWall)
+                    {
+                        if (!map[x, y].BottomWall)
+                        {
+                            map[x, y].OrType = BoardCollection.OrientationType.ClearRB;
+                        }
+                        if (!map[x, y].LeftWall)
+                        {
+                            map[x, y].OrType = BoardCollection.OrientationType.ClearRL;
+                        }
+                    }
+                    if (!map[x, y].BottomWall)
+                    {
+                        if (!map[x, y].LeftWall)
+                        {
+                            map[x, y].OrType = BoardCollection.OrientationType.ClearBL;
+                        }
+                    }
+                }
+                else
+                if (map[x, y].getWallCount() == 1)
+                {
+                    if (map[x, y].TopWall)
+                    {
+                        map[x, y].OrType = BoardCollection.OrientationType.ClearRBL;
+                    }
+                    if (map[x, y].RightWall)
+                    {
+                        map[x, y].OrType = BoardCollection.OrientationType.ClearBLT;
+                    }
+                    if (map[x, y].BottomWall)
+                    {
+                        map[x, y].OrType = BoardCollection.OrientationType.ClearTRL;
+                    }
+                    if (map[x, y].LeftWall)
+                    {
+                        map[x, y].OrType = BoardCollection.OrientationType.ClearTRB;
+                    }
+                }
+                else
+                {
+                    map[x, y].OrType = BoardCollection.OrientationType.Clear;
+                }
             }
         }
     }

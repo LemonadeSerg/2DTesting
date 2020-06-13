@@ -395,46 +395,46 @@ public class NewWallGeneration
                 if (x == map.GetLength(0) - 1)
                 {
                     map[x, y].RightWall = true;
-                    //map[x, y].updateBoardTexture();
+                    map[x, y].OuterShell = true;
                 }
                 if (x == 0)
                 {
                     map[x, y].LeftWall = true;
-                    //map[x, y].updateBoardTexture();
+                    map[x, y].OuterShell = true;
                 }
                 if (y == map.GetLength(1) - 1)
                 {
                     map[x, y].BottomWall = true;
-                    // map[x, y].updateBoardTexture();
+                    map[x, y].OuterShell = true;
                 }
                 if (y == 0)
                 {
                     map[x, y].TopWall = true;
-                    //map[x, y].updateBoardTexture();
+                    map[x, y].OuterShell = true;
                 }
                 if (x > 0)
                     if (map[x - 1, y].BiomeID != map[x, y].BiomeID)
                     {
                         map[x, y].LeftWall = true;
-                        //map[x, y].updateBoardTexture();
+                        map[x, y].ConnectedToOther = true;
                     }
                 if (y > 0)
                     if (map[x, y - 1].BiomeID != map[x, y].BiomeID)
                     {
                         map[x, y].TopWall = true;
-                        //map[x, y].updateBoardTexture();
+                        map[x, y].ConnectedToOther = true;
                     }
                 if (x < map.GetLength(0) - 1)
                     if (map[x + 1, y].BiomeID != map[x, y].BiomeID)
                     {
                         map[x, y].RightWall = true;
-                        //map[x, y].updateBoardTexture();
+                        map[x, y].ConnectedToOther = true;
                     }
                 if (y < map.GetLength(1) - 1)
                     if (map[x, y + 1].BiomeID != map[x, y].BiomeID)
                     {
                         map[x, y].BottomWall = true;
-                        //map[x, y].updateBoardTexture();
+                        map[x, y].ConnectedToOther = true;
                     }
             }
         }
